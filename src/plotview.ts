@@ -15,8 +15,16 @@ export class PlotView {
 	// Static function to create a new plot.
 	// The plot view itself is created only once.
 	public static showPlot(text: string) {
-		this.singleton = new PlotView();
+		// Create singleton if necessary
+		if(!this.singleton)
+			this.singleton = new PlotView();
 
+		// Add plot
+		const message = {
+			command: 'plotText',
+			data: text
+		};
+		this.singleton.sendMessageToWebView(message);
 	}
 
 
@@ -34,8 +42,18 @@ export class PlotView {
 		// Title
 		this.vscodePanel.title = "Number Series Plot";
 
+		// Allow scripts in the webview
+		this.vscodePanel.webview.options = {enableScripts: true};
+
 		// Init html
 		this.setHtml();
+
+		// Handle closing of the view
+		this.vscodePanel.onDidDispose(() => {
+			// Do not use panel anymore
+			this.vscodePanel = undefined as any;
+		});
+
 	}
 
 
@@ -61,5 +79,13 @@ export class PlotView {
 	}
 
 
+	/**
+	 * A message is posted to the web view.
+	 * @param message The message. message.command should contain the command as a string.
+	 * This needs to be evaluated inside the web view.
+	 */
+	protected sendMessageToWebView(message: any) {
+		this.vscodePanel.webview.postMessage(message);
+	}
 
 }

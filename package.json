@@ -42,7 +42,6 @@
         "@types/vscode": "^1.52.0",
         "typescript": "^4.1.3"
     },
-
     "contributes": {
         "commands": [
             {
@@ -57,7 +56,6 @@
                     "command": "number-plotter.plot"
                 }
             ],
-
             "editor/context": [
                 {
                     "command": "number-plotter.plot"

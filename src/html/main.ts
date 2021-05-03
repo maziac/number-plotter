@@ -1,23 +1,25 @@
 declare var acquireVsCodeApi: any;
 declare var document: Document;
 declare var window: Window & typeof globalThis;;
-declare var ImageConvert: any;
-declare var UlaScreen: any;
 
-declare var dataBuffer: number[];
-declare var lastOffset: number;
-declare var lastNode: any;
-
+declare var Plot: any;
 
 
 /**
- * The main program which starts the decoding.
- * Must implement the parseRoot function.
+ * The main program which receives the commands.
  */
 
 
+//---- Handle messages from vscode extension --------
+window.addEventListener('message', event => {
+	const message = event.data;
 
-//---- Parse the data (root level) --------
-function parseRoot() {
-}
-
+	switch (message.command) {
+		case 'plotText':
+			{
+				const numberText: string = message.data;
+				console.log(numberText);
+				const plot = new Plot(numberText);
+			} break;
+	}
+});

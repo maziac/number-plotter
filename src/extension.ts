@@ -1,7 +1,12 @@
 import * as vscode from 'vscode';
+import {PackageInfo} from './packageinfo';
 import {PlotView} from './plotview';
 
 export function activate(context: vscode.ExtensionContext) {
+    // Init package info
+    PackageInfo.Init(context);
+
+    // Number plot command
     context.subscriptions.push(vscode.commands.registerCommand('number-plotter.plot', () => {
         console.log('number-plotter.plot');
 

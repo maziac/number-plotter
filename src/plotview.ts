@@ -52,6 +52,8 @@ export class PlotView {
 		this.vscodePanel.onDidDispose(() => {
 			// Do not use panel anymore
 			this.vscodePanel = undefined as any;
+			// Remove singleton
+			PlotView.singleton = undefined;
 		});
 
 	}

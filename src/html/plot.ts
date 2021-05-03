@@ -33,8 +33,20 @@ export class Plot {
 			options: {}
 		};
 
+		// Get div_root
+		const divRoot = document.getElementById('div_root');
+
+		// Add a new div at the top
+		const node = document.createElement("DIV") as HTMLDivElement;
+		divRoot.prepend(node);
+
+		// Add a canvas
+		const canvas = document.createElement("CANVAS") as HTMLCanvasElement;
+		divRoot.append(canvas);
+
+		// Add the chart to it
 		var myChart = new Chart(
-			document.getElementById('myChart'),
+			canvas,
 			config
 		);
 	}

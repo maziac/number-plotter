@@ -4,33 +4,59 @@ declare var Chart: any;
 
 
 export class Plot {
-	protected text: string;
 
-	constructor(text: string) {
-		this.text = text;
+	// All available chart types to cycle through.
+	protected static chartTypes = [
+		'line',
+		'bar',
+		'scatter',
+		//'pie',
+		//'doughnut',
+	];
 
-		const labels = [
-			'January',
-			'February',
-			'March',
-			'April',
-			'May',
-			'June',
-		];
+	// The last selected chart type
+	protected static chartTypeIndex = 0;
+
+
+	/**
+	 * Creates a canvas etc. and shows the chart.
+	 * There is also a button to cycle through the different chart types.
+	 */
+	public static showPlot(text: string) {
+		// Convert text into number series
+		const textArray = text.split(/[,;]/);
+		const yArray: number[] = [];
+		for (let text of textArray) {
+			text = text.trim();
+			if (text.length > 0) {
+				const value = parseInt(text);
+				if (!isNaN(value))
+					yArray.push(value);
+			}
+		}
+
+		// Create x-series (0..N-1)
+		const len = yArray.length;
+		const xArray = new Array<number>(len);
+		for (let i = 0; i < len; i++)
+			xArray[i] = i;
+
+		// Setup data
 		const data = {
-			labels: labels,
+			labels: xArray,
 			datasets: [{
 				label: 'My First dataset',
 				backgroundColor: 'rgb(255, 99, 132)',
 				borderColor: 'rgb(255, 99, 132)',
-				data: [0, 10, 5, 2, 20, 30, 45],
+				data: yArray,
 			}]
 		};
-
 		const config = {
-			type: 'line',
+			type: this.getCurrentChartType(),
 			data,
-			options: {}
+			options: {
+				animation: true
+			}
 		};
 
 		// Get div_root
@@ -42,13 +68,42 @@ export class Plot {
 
 		// Add a canvas
 		const canvas = document.createElement("CANVAS") as HTMLCanvasElement;
-		divRoot.append(canvas);
+		node.append(canvas);
 
 		// Add the chart to it
-		var myChart = new Chart(
-			canvas,
-			config
-		);
+		const chart = new Chart(canvas, config);
+
+		// Add a button to change the type
+		const button = document.createElement("BUTTON") as HTMLButtonElement;
+		button.textContent = chart.config.type;
+		node.prepend(button);
+		button.addEventListener("click", () => {
+			// Next chart type
+			this.nextChartType();
+			// Set new type
+			chart.config.type = this.getCurrentChartType();
+			chart.update();
+			// Button text
+			button.textContent = chart.config.type;
+		});
+
 	}
 
+
+	/**
+	 * Return the current chart type.
+	 */
+	protected static getCurrentChartType(): string {
+		return this.chartTypes[this.chartTypeIndex];
+	}
+
+
+	/**
+	 * Cycles to the next chart type.
+	 */
+
+	protected static nextChartType() {
+		this.chartTypeIndex = (this.chartTypeIndex + 1) % this.chartTypes.length;
+		return this.chartTypes[this.chartTypeIndex];
+	}
 }

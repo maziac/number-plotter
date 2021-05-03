@@ -19,7 +19,7 @@ window.addEventListener('message', event => {
 			{
 				const numberText: string = message.data;
 				console.log(numberText);
-				const plot = new Plot(numberText);
+				Plot.showPlot(numberText);
 			} break;
 	}
 });

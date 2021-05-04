@@ -133,11 +133,12 @@ export class BarChart {
 		const divRoot = document.getElementById('div_root');
 
 		// Add a new div at the top
-		const node = document.createElement("DIV") as HTMLDivElement;
+		const node = document.createElement('div') as HTMLDivElement;
 		divRoot.prepend(node);
 
 		// Add the file name.
-		const textNode = document.createElement("DIV") as HTMLElement;
+		const textNode = document.createElement('div') as HTMLElement;
+		const refNode = document.createElement('a') as HTMLAnchorElement;
 		const parts = path.split(/[\/\\]/);
 		const basename = parts.pop();
 		const lineStart = range.start.line+1;
@@ -147,22 +148,31 @@ export class BarChart {
 		let fileText = basename + ';' + lineStart.toString();
 		if (lineStart < lineEnd)
 			fileText += '-' + lineEnd.toString();
-		textNode.innerText = fileText;
+		//refNode.title = "titl2";
+		refNode.href = path;
+		refNode.innerText = fileText;	// Required to change teh pointer on hovering
+		textNode.append(refNode);
 		node.append(textNode);
 
+		// Add click method for the file name
+		refNode.addEventListener("click", () => {
+			// Remove the node
+			node.remove(); // TODO Change
+		});
+
 		// Add a node for the buttons
-		const buttonNode = document.createElement("DIV") as HTMLDivElement;
+		const buttonNode = document.createElement('div') as HTMLDivElement;
 		node.append(buttonNode);
 
 		// Add a canvas
-		const canvas = document.createElement("CANVAS") as HTMLCanvasElement;
+		const canvas = document.createElement('canvas') as HTMLCanvasElement;
 		node.append(canvas);
 
 		// Add the chart to it
 		const chart = new Chart(canvas, config);
 
 		// Add a button to change the chart type
-		const typeButton = document.createElement("BUTTON") as HTMLButtonElement;
+		const typeButton = document.createElement('button') as HTMLButtonElement;
 		typeButton.textContent = this.Capitalize(chart.config.type);
 		buttonNode.append(typeButton);
 		typeButton.addEventListener("click", () => {
@@ -176,7 +186,7 @@ export class BarChart {
 		});
 
 		// Add a button to change the color
-		const colorButton = document.createElement("BUTTON") as HTMLButtonElement;
+		const colorButton = document.createElement('button') as HTMLButtonElement;
 		colorButton.textContent = 'Color';
 		buttonNode.append(colorButton);
 		colorButton.addEventListener("click", () => {
@@ -191,7 +201,7 @@ export class BarChart {
 		});
 
 		// Add a button to remove the chart
-		const removeButton = document.createElement("BUTTON") as HTMLButtonElement;
+		const removeButton = document.createElement('button') as HTMLButtonElement;
 		removeButton.textContent = 'Clear'; // "Clear" is shorter than "Remove"
 		removeButton.style.float = "right";
 		buttonNode.append(removeButton);
@@ -201,7 +211,7 @@ export class BarChart {
 		});
 
 		// Add a button to remove all chart up to the bottom
-		const removeToBottomButton = document.createElement("BUTTON") as HTMLButtonElement;
+		const removeToBottomButton = document.createElement('button') as HTMLButtonElement;
 		removeToBottomButton.textContent = "Clear 'til bottom";
 		removeToBottomButton.style.float = "right";
 		buttonNode.append(removeToBottomButton);

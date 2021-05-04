@@ -53,8 +53,11 @@ export class BarChart {
 	/**
 	 * Creates a canvas etc. and shows the chart.
 	 * There is also a button to cycle through the different chart types.
+	 * @param text The text that is converted to a number series.
+	 * @param path The file path.
+	 * @param range (vscode.Range) The original range. Is passed back when clicked.
 	 */
-	public static show(text: string) {
+	public static show(text: string, path: string, range: any) {
 		// Next color
 		this.colorIndex++;
 
@@ -107,7 +110,6 @@ export class BarChart {
 			k++;
 		}
 
-
 		// Setup data
 		const data = {
 			labels,
@@ -133,6 +135,20 @@ export class BarChart {
 		// Add a new div at the top
 		const node = document.createElement("DIV") as HTMLDivElement;
 		divRoot.prepend(node);
+
+		// Add the file name.
+		const textNode = document.createElement("DIV") as HTMLElement;
+		const parts = path.split(/[\/\\]/);
+		const basename = parts.pop();
+		const lineStart = range.start.line+1;
+		let lineEnd = range.end.line + 1;
+		if (range.end.character == 0)
+			lineEnd--;
+		let fileText = basename + ';' + lineStart.toString();
+		if (lineStart < lineEnd)
+			fileText += '-' + lineEnd.toString();
+		textNode.innerText = fileText;
+		node.append(textNode);
 
 		// Add a node for the buttons
 		const buttonNode = document.createElement("DIV") as HTMLDivElement;

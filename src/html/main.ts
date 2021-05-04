@@ -16,9 +16,7 @@ window.addEventListener('message', event => {
 	switch (message.command) {
 		case 'plotText':
 			{
-				const numberText: string = message.data;
-				console.log(numberText);
-				BarChart.show(numberText);
+				BarChart.show(message.text, message.path, message.range);
 			} break;
 	}
 });

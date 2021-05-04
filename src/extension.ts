@@ -22,10 +22,14 @@ export function activate(context: vscode.ExtensionContext) {
 
         // Get only a single line
         const range = selection.with();
-        const text = editor.document.getText(range);
+        const document = editor.document;
+        const text = document.getText(range);
+
+        // Get file name
+        const filename = document.uri.fsPath;
 
         // Show plot
-        PlotView.showPlot(text);
+        PlotView.showPlot(text, filename, range);
     }));
 
 }

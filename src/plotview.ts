@@ -12,9 +12,14 @@ export class PlotView {
 	protected static singleton: PlotView;
 
 
-	// Static function to create a new plot.
-	// The plot view itself is created only once.
-	public static showPlot(text: string) {
+	/**
+	 * Static function to create a new plot.
+	 * The plot view itself is created only once.
+	 * @param text The text that is converted to a number series.
+	 * @param path The file path.
+	 * @param range The original range. Is passed back when clicked.
+	 */
+	public static showPlot(text: string, path: string, range: vscode.Range) {
 		// Create singleton if necessary
 		if(!this.singleton)
 			this.singleton = new PlotView();
@@ -22,7 +27,9 @@ export class PlotView {
 		// Add plot
 		const message = {
 			command: 'plotText',
-			data: text
+			text: text,
+			path: path,
+			range: range
 		};
 		this.singleton.sendMessageToWebView(message);
 	}

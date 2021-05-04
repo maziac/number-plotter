@@ -22,4 +22,35 @@ The "Number Plotter" takes a series of selected numbers and creates a plot out o
 
 
 
+# Available Charts
+
+## General
+
+Each selected line becomes one data series in the chart.
+
+## Line / Bar Chart
+
+The user can select if this is shown as line or bar chart via a button.
+All points are shown at equidistant positions.
+
+
+## Scatter Chart
+
+This is for x/y plots.
+The data is expected to be in either of 2 different formats.
+The user can switch x/y via a button.
+
+### Format 1: Alternating x/y positions
+
+The x/y positions alternate, e.g.:
+0.1,1.0, 0.3,1.5
+for x1/y1, x2/y2.
+
+### Format 3: x positions in first line
+
+Only if several lines are selected.
+The first line contains the x positions.
+The other lines contain thy y values of the different data series.
+
+
 

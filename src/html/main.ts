@@ -1,8 +1,7 @@
 declare var acquireVsCodeApi: any;
-declare var document: Document;
+//declare var document: Document;
 declare var window: Window & typeof globalThis;;
-
-declare var Plot: any;
+declare var BarChart: any;
 
 
 /**
@@ -19,7 +18,7 @@ window.addEventListener('message', event => {
 			{
 				const numberText: string = message.data;
 				console.log(numberText);
-				Plot.showPlot(numberText);
+				BarChart.show(numberText);
 			} break;
 	}
 });

@@ -3,6 +3,18 @@ declare var document: Document;
 declare var Chart: any;
 
 
+/**
+ * The chart data representation, x/y pair.
+ */
+interface Data {
+	x: number,
+	y: number
+};
+
+
+/**
+ * A static class which contains functions to draw/prepare the chart.
+ */
 export class Plot {
 
 	// All available chart types to cycle through.
@@ -15,7 +27,7 @@ export class Plot {
 	];
 
 	// The last selected chart type
-	protected static chartTypeIndex = 0;
+	protected static chartTypeIndex = 2;
 
 
 	/**
@@ -23,39 +35,44 @@ export class Plot {
 	 * There is also a button to cycle through the different chart types.
 	 */
 	public static showPlot(text: string) {
+		const series: Data[] = [];
+		const labels: string[] = [];
 		// Convert text into number series
-		const textArray = text.split(/[,;]/);
+		const textArray = text.split(/[ ,;]/);
 		const yArray: number[] = [];
+		let x;
 		for (let text of textArray) {
 			text = text.trim();
 			if (text.length > 0) {
-				const value = parseInt(text);
-				if (!isNaN(value))
-					yArray.push(value);
+				const v = parseFloat(text);
+				if (!isNaN(v)) {
+					if (x == undefined)
+						x = v;
+					else {
+						series.push({x, y: v});
+						x = undefined;
+					}
+				}
 			}
 		}
 
-		// Create x-series (0..N-1)
-		const len = yArray.length;
-		const xArray = new Array<number>(len);
-		for (let i = 0; i < len; i++)
-			xArray[i] = i;
 
 		// Setup data
 		const data = {
-			labels: xArray,
+			//labels,
 			datasets: [{
-				label: 'My First dataset',
-				backgroundColor: 'rgb(255, 99, 132)',
+				label: 'Plot',
+				backgroundColor: 'rgb(255, 255, 132)',
 				borderColor: 'rgb(255, 99, 132)',
-				data: yArray,
+				data: series,
+				showLine: true
 			}]
 		};
 		const config = {
 			type: this.getCurrentChartType(),
 			data,
 			options: {
-				animation: true
+				animation: true,
 			}
 		};
 
@@ -72,6 +89,7 @@ export class Plot {
 
 		// Add the chart to it
 		const chart = new Chart(canvas, config);
+
 
 		// Add a button to change the type
 		const button = document.createElement("BUTTON") as HTMLButtonElement;

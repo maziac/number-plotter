@@ -134,6 +134,10 @@ export class BarChart {
 		const node = document.createElement("DIV") as HTMLDivElement;
 		divRoot.prepend(node);
 
+		// Add a node for the buttons
+		const buttonNode = document.createElement("DIV") as HTMLDivElement;
+		node.append(buttonNode);
+
 		// Add a canvas
 		const canvas = document.createElement("CANVAS") as HTMLCanvasElement;
 		node.append(canvas);
@@ -141,10 +145,24 @@ export class BarChart {
 		// Add the chart to it
 		const chart = new Chart(canvas, config);
 
+		// Add a button to change the chart type
+		const typeButton = document.createElement("BUTTON") as HTMLButtonElement;
+		typeButton.textContent = this.Capitalize(chart.config.type);
+		buttonNode.append(typeButton);
+		typeButton.addEventListener("click", () => {
+			// Next chart type
+			this.nextChartType();
+			// Set new type
+			chart.config.type = this.getCurrentChartType();
+			chart.update();
+			// Button text
+			typeButton.textContent = this.Capitalize(chart.config.type);
+		});
+
 		// Add a button to change the color
 		const colorButton = document.createElement("BUTTON") as HTMLButtonElement;
 		colorButton.textContent = 'Color';
-		node.prepend(colorButton);
+		buttonNode.append(colorButton);
 		colorButton.addEventListener("click", () => {
 			// Next color
 			this.nextColor();
@@ -156,19 +174,36 @@ export class BarChart {
 			colorButton.textContent = this.Capitalize(this.getCurrentColorName());
 		});
 
-		// Add a button to change the chart type
-		const typeButton = document.createElement("BUTTON") as HTMLButtonElement;
-		typeButton.textContent = this.Capitalize(chart.config.type);
-		node.prepend(typeButton);
-		typeButton.addEventListener("click", () => {
-			// Next chart type
-			this.nextChartType();
-			// Set new type
-			chart.config.type = this.getCurrentChartType();
-			chart.update();
-			// Button text
-			typeButton.textContent = this.Capitalize(chart.config.type);
+		// Add a button to remove the chart
+		const removeButton = document.createElement("BUTTON") as HTMLButtonElement;
+		removeButton.textContent = 'Clear'; // "Clear" is shorter than "Remove"
+		removeButton.style.float = "right";
+		buttonNode.append(removeButton);
+		removeButton.addEventListener("click", () => {
+			// Remove the node
+			node.remove();
 		});
+
+		// Add a button to remove all chart up to the bottom
+		const removeToBottomButton = document.createElement("BUTTON") as HTMLButtonElement;
+		removeToBottomButton.textContent = "Clear 'til bottom";
+		removeToBottomButton.style.float = "right";
+		buttonNode.append(removeToBottomButton);
+		removeToBottomButton.addEventListener("click", () => {
+			// Collect all children to remove
+			const removeNodes = [];
+			const children = divRoot.childNodes;
+			for (let i = children.length - 1; i >= 0; i--) {
+				const child = children[i];
+				removeNodes.push(child);
+				if (child == node)
+					break;
+			}
+			// Remove the nodes
+			for(const child of removeNodes)
+				child.remove();
+		});
+
 	}
 
 

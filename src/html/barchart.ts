@@ -1,6 +1,6 @@
 declare var document: Document;
 declare var Chart: any;
-
+const vscode = acquireVsCodeApi();
 
 /**
  * The chart data representation, x/y pair.
@@ -12,7 +12,7 @@ interface Data {
 
 
 /**
- * A static class which contains functions to draw/prepare the chart.
+ * A static class which contains functions to draw/prepare a line or bar chart.
  */
 export class BarChart {
 
@@ -60,77 +60,22 @@ export class BarChart {
 	public static show(text: string, path: string, range: any) {
 		// Next color
 		this.colorIndex++;
-
-		// Split lines of text
-		const lines = text.replace(/\r/g, '').split('\n');
 		// Convert text into number series
-		const serieses: number[][] = [];
-		// For each line get the number series
-		for (const line of lines) {
-			const yArray: number[] = [];
-			const labels: string[] = [];
-			const textArray = line.split(/[,; ]/);
-			for (let text of textArray) {
-				text = text.trim();
-				if (text.length > 0) {
-					const y = parseFloat(text);
-					if (!isNaN(y))
-						yArray.push(y);
-				}
-			}
-			// If at least one element than add it to the serieses.
-			if (yArray.length > 0)
-				serieses.push(yArray);
-		}
+		const {serieses, shortText} = this.convertToSerieses(text);
 
-		// Get the max. number of elements
-		let maxCount = 0;
-		for (const series of serieses) {
-			const count = series.length;
-			if (count > maxCount)
-				maxCount = count;
-		}
+		// Get the config for the chart
+		const config = this.createChartConfig(serieses);
 
-		// Now create labels
-		const labels = new Array<string>(maxCount);
-		for (let i = 0; i < maxCount; i++)
-			labels[i] = i.toString();
-
-		// Setup datasets for chart
-		const datasets = [];
-		let k = 0;
-		for (const series of serieses) {
-			datasets.push({
-				label: '',
-				backgroundColor: this.getCurrentBkgColor(k),
-				borderColor: this.getCurrentBorderColor(k),
-				data: series,
-				showLine: true
-			});
-			k++;
-		}
-
-		// Setup data
-		const data = {
-			labels,
-			datasets
-		};
-		const config = {
-			type: this.getCurrentChartType(),
-			data,
-			options: {
-				plugins: {
-					legend: {
-						display: (serieses.length>1)
-					}
-				},
-				animation: true,
-				locale: "en-US",	// Use . for decimal separation
-			}
-		};
 
 		// Get div_root
 		const divRoot = document.getElementById('div_root');
+
+		// Add a horizontal ruler
+		const firstChild = divRoot.firstElementChild;
+		if (firstChild) {
+			const hr = document.createElement('hr') as HTMLHRElement;
+			firstChild.prepend(hr);
+		}
 
 		// Add a new div at the top
 		const node = document.createElement('div') as HTMLDivElement;
@@ -148,16 +93,26 @@ export class BarChart {
 		let fileText = basename + ';' + lineStart.toString();
 		if (lineStart < lineEnd)
 			fileText += '-' + lineEnd.toString();
-		//refNode.title = "titl2";
+		if (shortText) {
+			fileText += ':';
+			// Add a text node
+			const smallTextNode = document.createElement('span') as HTMLElement;
+			smallTextNode.innerHTML = '&nbsp;&nbsp;' + shortText;
+			textNode.append(smallTextNode);
+		}
 		refNode.href = path;
-		refNode.innerText = fileText;	// Required to change teh pointer on hovering
-		textNode.append(refNode);
+		refNode.innerText = fileText;	// Required to change the pointer on hovering
+		textNode.prepend(refNode);
 		node.append(textNode);
 
 		// Add click method for the file name
 		refNode.addEventListener("click", () => {
-			// Remove the node
-			node.remove(); // TODO Change
+			// Send filename and range to extension
+			vscode.postMessage({
+				command: 'select',
+				path: path,
+				range: range
+			});
 		});
 
 		// Add a node for the buttons
@@ -193,11 +148,13 @@ export class BarChart {
 			// Next color
 			this.nextColor();
 			// Set new color
-			chart.config.data.datasets[0].backgroundColor = this.getCurrentBkgColor();
-			chart.config.data.datasets[0].borderColor = this.getCurrentBorderColor();
+			const datasets = chart.config.data.datasets;
+			const len = datasets.length;
+			for (let k = 0; k < len; k++) {
+				chart.config.data.datasets[k].backgroundColor = this.getCurrentBkgColor(k);
+				chart.config.data.datasets[k].borderColor = this.getCurrentBorderColor(k);
+			}
 			chart.update();
-			// Button text
-			colorButton.textContent = this.Capitalize(this.getCurrentColorName());
 		});
 
 		// Add a button to remove the chart
@@ -229,7 +186,134 @@ export class BarChart {
 			for(const child of removeNodes)
 				child.remove();
 		});
+	}
 
+
+	/**
+	 * Splits the given text in serieses of numbers.
+	 * Each new line in hte text will become an own series.
+	 * @param text The multiline text with numbers.
+	 * @returns {serieses: An array with serieses, shortText: A description for the serieses}
+	 */
+	protected static convertToSerieses(text: string): {serieses: number[][], shortText: string} {
+
+		// Split lines of text
+		const lines = text.replace(/\r/g, '').split('\n');
+		// Convert text into number series
+		const serieses: number[][] = [];
+		// To store a small text to show to the user
+		let shortText = '';
+		// For each line get the number series
+		for (const line of lines) {
+			const yArray: number[] = [];
+			const trimmedLine = line.trim();
+			if (trimmedLine.length == 0)
+				continue;
+			const textArray = trimmedLine
+				.split(/[,;\s]/);
+			for (let text of textArray) {
+				text = text.trim();
+				if (text.length > 0) {
+					const y = parseFloat(text);
+					if (!isNaN(y))
+						yArray.push(y);
+				}
+			}
+			// If at least one element than add it to the serieses.
+			if (yArray.length > 0) {
+				// Store series
+				serieses.push(yArray);
+				// Store text from the first used line
+				if (!shortText)
+					shortText = trimmedLine;
+			}
+		}
+
+		// Shorten smallText
+		const maxShortTextLength = 20;
+		if (shortText.length > maxShortTextLength || serieses.length > 1) {
+			shortText = shortText.substr(0, maxShortTextLength) + ' ...';
+		}
+
+		// Return
+		return {serieses, shortText};
+	}
+
+
+	/**
+	 * Returns the max length of all serieses.
+	 */
+	protected static getMaxCount(serieses: number[][]): number {
+		// Get the max. number of elements
+		let maxCount = 0;
+		for (const series of serieses) {
+			const count = series.length;
+			if (count > maxCount)
+				maxCount = count;
+		}
+		return maxCount;
+	}
+
+
+	/**
+	 * Creates labels for the serieses.
+	 */
+	protected static createLabels(serieses: number[][]): string[] {
+		const maxCount = this.getMaxCount(serieses);
+		// Now create labels
+		const labels = new Array<string>(maxCount);
+		for (let i = 0; i < maxCount; i++)
+			labels[i] = i.toString();
+		// Return
+		return labels;
+	}
+
+
+	/**
+	 * Creates the configuration for the chart.
+	 * Override for other chart types.
+	 */
+	protected static createChartConfig(serieses: number[][]): any {
+		// Create labels
+		const labels = this.createLabels(serieses);
+
+		// Setup datasets for line/bar chart
+		const datasets = [];
+		let k = 0;
+		for (const series of serieses) {
+			datasets.push({
+				label: '',
+				backgroundColor: this.getCurrentBkgColor(k),
+				borderColor: this.getCurrentBorderColor(k),
+				data: series,
+				showLine: true
+			});
+			k++;
+		}
+
+		// Setup data
+		const data = {
+			labels,
+			datasets
+		};
+
+		// And config
+		const config = {
+			type: this.getCurrentChartType(),
+			data,
+			options: {
+				plugins: {
+					legend: {
+						display: (serieses.length > 1)
+					}
+				},
+				animation: true,
+				locale: "en-US",	// Use . for decimal separation
+			}
+		};
+
+		// Return
+		return config;
 	}
 
 

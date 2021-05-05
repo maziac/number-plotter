@@ -13,20 +13,21 @@ export class PlotView {
 
 
 	/**
-	 * Static function to create a new plot.
+	 * Static function to create a new line/bar chart.
 	 * The plot view itself is created only once.
+	 * @param chartType 'lineChart' or 'xyChart'.
 	 * @param text The text that is converted to a number series.
 	 * @param path The file path.
 	 * @param range The original range. Is passed back when clicked.
 	 */
-	public static showPlot(text: string, path: string, range: vscode.Range) {
+	public static showChart(chartType: string, text: string, path: string, range: vscode.Range) {
 		// Create singleton if necessary
-		if(!this.singleton)
+		if (!this.singleton)
 			this.singleton = new PlotView();
 
 		// Add plot
 		const message = {
-			command: 'plotText',
+			command: chartType,
 			text: text,
 			path: path,
 			range: range
@@ -44,7 +45,7 @@ export class PlotView {
 	 */
 	constructor() {
 		// Create vscode panel view
-		this.vscodePanel = vscode.window.createWebviewPanel('', '', {preserveFocus: true, viewColumn: vscode.ViewColumn.Nine});
+		this.vscodePanel = vscode.window.createWebviewPanel('', '', {preserveFocus: true, viewColumn: vscode.ViewColumn.Nine}, {enableScripts: true, enableFindWidget: true, retainContextWhenHidden: true});
 
 		// Title
 		this.vscodePanel.title = "Number Series Plot";
@@ -52,8 +53,10 @@ export class PlotView {
 		// Allow scripts in the webview
 		this.vscodePanel.webview.options = {enableScripts: true};
 
-		// Init html
-		this.setHtml();
+		// Handle messages from the webview
+		this.vscodePanel.webview.onDidReceiveMessage(message => {
+			this.webViewMessageReceived(message);
+		});
 
 		// Handle closing of the view
 		this.vscodePanel.onDidDispose(() => {
@@ -63,6 +66,8 @@ export class PlotView {
 			PlotView.singleton = undefined;
 		});
 
+		// Init html
+		this.setHtml();
 	}
 
 
@@ -97,4 +102,27 @@ export class PlotView {
 		this.vscodePanel.webview.postMessage(message);
 	}
 
+
+	/**
+	 * The web view posted a message to this view.
+	 * @param message The message. message.command contains the command as a string. E.g. 'keyChanged'
+	 */
+	protected async webViewMessageReceived(message: any) {
+		switch (message.command) {
+			case 'select':
+				// A text (range) in a file should be selected.
+				// Get editor
+				//vscode.workspace.textDocuments.filter(doc => doc.isDirty)
+				const uri = vscode.Uri.file(message.path);
+				const doc: vscode.TextDocument = await vscode.workspace.openTextDocument(uri);
+				const editor: vscode.TextEditor = await vscode.window.showTextDocument(doc);
+				// Select range
+				const range: vscode.Range = message.range;
+				const selection = new vscode.Selection(range.start.line, range.start.character, range.end.line, range.end.character);
+				editor.selection = selection;
+				// Scroll to range (if necessary)
+				editor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+				break;
+		}
+	}
 }

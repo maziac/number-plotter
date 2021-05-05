@@ -45,20 +45,31 @@
     "contributes": {
         "commands": [
             {
-                "command": "number-plotter.plot",
-                "title": "Plots the selected series of numbers",
+                "command": "number-plotter.linechart",
+                "title": "Line/Bar Chart of the selected Series of Numbers",
+                "category": "number-plotter"
+            },
+            {
+                "command": "number-plotter.xychart",
+                "title": "X/Y Chart of the selected Series of Numbers",
                 "category": "number-plotter"
             }
         ],
         "menus": {
             "commandPalette": [
                 {
-                    "command": "number-plotter.plot"
+                    "command": "number-plotter.linechart"
+                },
+                {
+                    "command": "number-plotter.xychart"
                 }
             ],
             "editor/context": [
                 {
-                    "command": "number-plotter.plot"
+                    "command": "number-plotter.linechart"
+                },
+                {
+                    "command": "number-plotter.xychart"
                 }
             ]
         }

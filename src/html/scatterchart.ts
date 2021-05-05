@@ -1,4 +1,3 @@
-
 declare var document: Document;
 declare var Chart: any;
 
@@ -13,115 +12,64 @@ interface Data {
 
 
 /**
- * A static class which contains functions to draw/prepare the chart.
+ * A static class which contains functions to draw/prepare a x/ chart.
  */
-export class Plot {
-
-	// All available chart types to cycle through.
-	protected static chartTypes = [
-		'line',
-		'bar',
-		'scatter',
-		//'pie',
-		//'doughnut',
-	];
-
-	// The last selected chart type
-	protected static chartTypeIndex = 2;
-
+export class ScatterChart extends BarChart {
 
 	/**
-	 * Creates a canvas etc. and shows the chart.
-	 * There is also a button to cycle through the different chart types.
+	 * Creates the configuration for the chart.
+	 * Override for other chart types.
 	 */
-	public static showPlot(text: string) {
-		const series: Data[] = [];
-		const labels: string[] = [];
-		// Convert text into number series
-		const textArray = text.split(/[ ,;]/);
-		const yArray: number[] = [];
-		let x;
-		for (let text of textArray) {
-			text = text.trim();
-			if (text.length > 0) {
-				const v = parseFloat(text);
-				if (!isNaN(v)) {
-					if (x == undefined)
-						x = v;
-					else {
-						series.push({x, y: v});
-						x = undefined;
-					}
-				}
+	protected static createChartConfig(serieses: number[][]): any {
+		// Convert number series in series of x and y
+		const xySerieses = new Array<Array<{x: number, y: number}>>();
+		for (const series of serieses) {
+			const xySeries = new Array<{x: number, y: number}>();
+			const len = series.length;
+			for (let i = 0; i < len - 1; i += 2) {
+				const a = series[i];
+				const b = series[i+1];
+				xySeries.push({x: a, y: b});	// x/y
 			}
+			xySerieses.push(xySeries);
 		}
 
+		// Setup datasets for line/bar chart
+		const datasets = [];
+		let k = 0;
+		for (const series of xySerieses) {
+			datasets.push({
+				label: '',
+				backgroundColor: this.getCurrentBkgColor(k),
+				borderColor: this.getCurrentBorderColor(k),
+				data: series,
+				showLine: true
+			});
+			k++;
+		}
 
 		// Setup data
 		const data = {
-			//labels,
-			datasets: [{
-				label: 'Plot',
-				backgroundColor: 'rgb(255, 255, 132)',
-				borderColor: 'rgb(255, 99, 132)',
-				data: series,
-				showLine: true
-			}]
+			datasets
 		};
+
+		// And config
 		const config = {
-			type: this.getCurrentChartType(),
+			type: 'scatter',
 			data,
 			options: {
+				plugins: {
+					legend: {
+						display: (xySerieses.length > 1)
+					}
+				},
 				animation: true,
+				locale: "en-US",	// Use . for decimal separation
 			}
 		};
 
-		// Get div_root
-		const divRoot = document.getElementById('div_root');
-
-		// Add a new div at the top
-		const node = document.createElement("DIV") as HTMLDivElement;
-		divRoot.prepend(node);
-
-		// Add a canvas
-		const canvas = document.createElement("CANVAS") as HTMLCanvasElement;
-		node.append(canvas);
-
-		// Add the chart to it
-		const chart = new Chart(canvas, config);
-
-
-		// Add a button to change the type
-		const button = document.createElement("BUTTON") as HTMLButtonElement;
-		button.textContent = chart.config.type;
-		node.prepend(button);
-		button.addEventListener("click", () => {
-			// Next chart type
-			this.nextChartType();
-			// Set new type
-			chart.config.type = this.getCurrentChartType();
-			chart.update();
-			// Button text
-			button.textContent = chart.config.type;
-		});
-
+		// Return
+		return config;
 	}
 
-
-	/**
-	 * Return the current chart type.
-	 */
-	protected static getCurrentChartType(): string {
-		return this.chartTypes[this.chartTypeIndex];
-	}
-
-
-	/**
-	 * Cycles to the next chart type.
-	 */
-
-	protected static nextChartType() {
-		this.chartTypeIndex = (this.chartTypeIndex + 1) % this.chartTypes.length;
-		return this.chartTypes[this.chartTypeIndex];
-	}
 }

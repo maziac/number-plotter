@@ -17,10 +17,34 @@ interface XY {
 export class ScatterChart extends BarChart {
 
 	/**
+	 * Creates a canvas etc. and shows the chart.
+	 * @param text The text that is converted to a number series.
+	 * @param path The file path.
+	 * @param range (vscode.Range) The original range. Is passed back when clicked.
+	 */
+	public static show(text: string, path: string, range: any) {
+		// Create an instance
+		new ScatterChart(text, path, range);
+	}
+
+
+	/**
+	 * Creates a canvas etc.and shows the chart.
+	 * There is also a button to cycle through the different chart types.
+	 * @param text The text that is converted to a number series.
+	 * @param path The file path.
+	 * @param range(vscode.Range) The original range.Is passed back when clicked.
+	 */
+	constructor(text: string, path: string, range: any) {
+		super(text, path, range);
+	}
+
+
+	/**
 	 * Takes the given serieses and converts them to a series of XY pairs.
 	 * The serieses are interpreted as alternating x and y values.
 	 */
-	protected static createXyAlternatingSerieses(serieses: number[][]): XY[][] {
+	protected createXyAlternatingSerieses(serieses: number[][]): XY[][] {
 		// Convert number series in series of x and y
 		const xySerieses = new Array<Array<XY>>();
 		for (const series of serieses) {
@@ -41,7 +65,7 @@ export class ScatterChart extends BarChart {
 	 * Creates the configuration for the chart.
 	 * Override for other chart types.
 	 */
-	protected static createChartConfig(serieses: number[][]): any {
+	protected createChartConfig(serieses: number[][]): any {
 		// Convert number series in series of x and y
 		const xySerieses = this.createXyAlternatingSerieses(serieses);
 
@@ -92,7 +116,7 @@ export class ScatterChart extends BarChart {
 	 * @param chart The just created chart is passed here.
 	 * @param serieses The series data is passed here.
 	 */
-	protected static createFirstButton(chart: any, serieses: any): HTMLButtonElement {
+	protected createFirstButton(chart: any, serieses: any): HTMLButtonElement {
 		const typeButton = document.createElement('button') as HTMLButtonElement;
 		typeButton.textContent = "X/Y Pairs"
 		typeButton.addEventListener("click", () => {

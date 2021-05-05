@@ -36,7 +36,7 @@ export class BarChart {
 		'rgb(64, 64, 128)',
 	];
 
-	// The last selected color.
+	// The last selected color. Global.
 	protected static colorIndex = -1;
 
 
@@ -46,8 +46,15 @@ export class BarChart {
 		'bar',
 	];
 
-	// The last selected chart type.
+	// The last selected chart type. Global.
 	protected static chartTypeIndex = 0;
+
+
+	// The last selected color. Local to this instance.
+	protected colorIndex: number;
+
+	// The last selected chart type. Local to this instance.
+	protected chartTypeIndex: number;
 
 
 	/**
@@ -58,8 +65,25 @@ export class BarChart {
 	 * @param range (vscode.Range) The original range. Is passed back when clicked.
 	 */
 	public static show(text: string, path: string, range: any) {
+		// Create an instance
+		new BarChart(text, path, range);
+	}
+
+
+	/**
+	 * Creates a canvas etc. and shows the chart.
+	 * There is also a button to cycle through the different chart types.
+	 * @param text The text that is converted to a number series.
+	 * @param path The file path.
+	 * @param range (vscode.Range) The original range. Is passed back when clicked.
+	 */
+	constructor(text: string, path: string, range: any) {
+		// Use last chart type
+		this.chartTypeIndex = BarChart.chartTypeIndex;
 		// Next color
-		this.colorIndex++;
+		this.colorIndex = BarChart.colorIndex;
+		this.nextColor();
+
 		// Convert text into number series
 		const {serieses, shortText} = this.convertToSerieses(text);
 
@@ -96,9 +120,9 @@ export class BarChart {
 		if (shortText) {
 			fileText += ':';
 			// Add a text node
-			const smallTextNode = document.createElement('span') as HTMLElement;
-			smallTextNode.innerHTML = '&nbsp;&nbsp;' + shortText;
-			textNode.append(smallTextNode);
+			const shortTextNode = document.createElement('span') as HTMLElement;
+			shortTextNode.innerHTML = '&nbsp;&nbsp;' + shortText;
+			textNode.append(shortTextNode);
 		}
 		refNode.href = path;
 		refNode.innerText = fileText;	// Required to change the pointer on hovering
@@ -185,7 +209,7 @@ export class BarChart {
 	 * @param text The multiline text with numbers.
 	 * @returns {serieses: An array with serieses, shortText: A description for the serieses}
 	 */
-	protected static convertToSerieses(text: string): {serieses: number[][], shortText: string} {
+	protected convertToSerieses(text: string): {serieses: number[][], shortText: string} {
 
 		// Split lines of text
 		const lines = text.replace(/\r/g, '').split('\n');
@@ -233,7 +257,7 @@ export class BarChart {
 	/**
 	 * Returns the max length of all serieses.
 	 */
-	protected static getMaxCount(serieses: number[][]): number {
+	protected getMaxCount(serieses: number[][]): number {
 		// Get the max. number of elements
 		let maxCount = 0;
 		for (const series of serieses) {
@@ -248,7 +272,7 @@ export class BarChart {
 	/**
 	 * Creates labels for the serieses.
 	 */
-	protected static createLabels(serieses: number[][]): string[] {
+	protected createLabels(serieses: number[][]): string[] {
 		const maxCount = this.getMaxCount(serieses);
 		// Now create labels
 		const labels = new Array<string>(maxCount);
@@ -263,7 +287,7 @@ export class BarChart {
 	 * Creates the configuration for the chart.
 	 * Override for other chart types.
 	 */
-	protected static createChartConfig(serieses: number[][]): any {
+	protected createChartConfig(serieses: number[][]): any {
 		// Create labels
 		const labels = this.createLabels(serieses);
 
@@ -314,9 +338,9 @@ export class BarChart {
 	 * @param chart The just created chart is passed here.
 	 * @param data Any additional data can be passed here. Unused.
 	 */
-	protected static createFirstButton(chart: any, data?: any): HTMLButtonElement {
+	protected createFirstButton(chart: any, data?: any): HTMLButtonElement {
 		const typeButton = document.createElement('button') as HTMLButtonElement;
-		typeButton.textContent = this.Capitalize(chart.config.type);
+		typeButton.textContent = this.capitalize(chart.config.type);
 		typeButton.addEventListener("click", () => {
 			// Next chart type
 			this.nextChartType();
@@ -324,7 +348,7 @@ export class BarChart {
 			chart.config.type = this.getCurrentChartType();
 			chart.update();
 			// Button text
-			typeButton.textContent = this.Capitalize(chart.config.type);
+			typeButton.textContent = this.capitalize(chart.config.type);
 		});
 
 		return typeButton;
@@ -334,8 +358,8 @@ export class BarChart {
 	/**
 	 * Return the current chart type.
 	 */
-	protected static getCurrentChartType(): string {
-		return this.chartTypes[this.chartTypeIndex];
+	protected getCurrentChartType(): string {
+		return BarChart.chartTypes[this.chartTypeIndex];
 	}
 
 
@@ -343,32 +367,33 @@ export class BarChart {
 	 * Cycles to the next chart type.
 	 */
 
-	protected static nextChartType() {
-		this.chartTypeIndex = (this.chartTypeIndex + 1) % this.chartTypes.length;
-		return this.chartTypes[this.chartTypeIndex];
+	protected nextChartType() {
+		this.chartTypeIndex = (BarChart.chartTypeIndex + 1) % BarChart.chartTypes.length;
+		BarChart.chartTypeIndex = this.chartTypeIndex;
+		return BarChart.chartTypes[this.chartTypeIndex];
 	}
 
 
 	/**
 	 * Return the current line color.
 	 */
-	protected static getCurrentColorName(): string {
-		return this.colorNames[this.colorIndex];
+	protected getCurrentColorName(): string {
+		return BarChart.colorNames[this.colorIndex];
 	}
 
 
 	/**
 	 * Return the current line color.
 	 */
-	protected static getCurrentBkgColor(offs = 0): string {
-		return this.bkgColors[(this.colorIndex + offs) % this.colorNames.length];
+	protected getCurrentBkgColor(offs = 0): string {
+		return BarChart.bkgColors[(this.colorIndex + offs) % BarChart.colorNames.length];
 	}
 
 	/**
 	 * Return the current point color.
 	 */
-	protected static getCurrentBorderColor(offs = 0): string {
-		return this.borderColors[(this.colorIndex + offs) % this.colorNames.length];
+	protected getCurrentBorderColor(offs = 0): string {
+		return BarChart.borderColors[(this.colorIndex + offs) % BarChart.colorNames.length];
 	}
 
 
@@ -376,15 +401,16 @@ export class BarChart {
 	 * Cycles to the next chart type.
 	 */
 
-	protected static nextColor() {
-		this.colorIndex = (this.colorIndex + 1) % this.colorNames.length;
+	protected nextColor() {
+		this.colorIndex = (this.colorIndex + 1) % BarChart.colorNames.length;
+		BarChart.colorIndex = this.colorIndex;	// Use for next chart
 	}
 
 
 	/**
 	 * Returns the string with a capitalized first letter.
 	 */
-	protected static Capitalize(text: string): string {
+	protected capitalize(text: string): string {
 		if (text.length == 0)
 			return '';
 		return text.charAt(0).toUpperCase() + text.slice(1)

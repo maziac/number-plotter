@@ -127,18 +127,8 @@ export class BarChart {
 		const chart = new Chart(canvas, config);
 
 		// Add a button to change the chart type
-		const typeButton = document.createElement('button') as HTMLButtonElement;
-		typeButton.textContent = this.Capitalize(chart.config.type);
+		const typeButton = this.createFirstButton(chart);
 		buttonNode.append(typeButton);
-		typeButton.addEventListener("click", () => {
-			// Next chart type
-			this.nextChartType();
-			// Set new type
-			chart.config.type = this.getCurrentChartType();
-			chart.update();
-			// Button text
-			typeButton.textContent = this.Capitalize(chart.config.type);
-		});
 
 		// Add a button to change the color
 		const colorButton = document.createElement('button') as HTMLButtonElement;
@@ -314,6 +304,30 @@ export class BarChart {
 
 		// Return
 		return config;
+	}
+
+
+	/**
+	 * Create the first button. Upper left corner.
+	 * Here it is used to toggle the chart type between
+	 * line and bar.
+	 * @param chart The just created chart is passed here.
+	 * @param data Any additional data can be passed here. Unused.
+	 */
+	protected static createFirstButton(chart: any, data?: any): HTMLButtonElement {
+		const typeButton = document.createElement('button') as HTMLButtonElement;
+		typeButton.textContent = this.Capitalize(chart.config.type);
+		typeButton.addEventListener("click", () => {
+			// Next chart type
+			this.nextChartType();
+			// Set new type
+			chart.config.type = this.getCurrentChartType();
+			chart.update();
+			// Button text
+			typeButton.textContent = this.Capitalize(chart.config.type);
+		});
+
+		return typeButton;
 	}
 
 

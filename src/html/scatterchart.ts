@@ -5,7 +5,7 @@ declare var Chart: any;
 /**
  * The chart data representation, x/y pair.
  */
-interface Data {
+interface XY {
 	x: number,
 	y: number
 };
@@ -17,22 +17,33 @@ interface Data {
 export class ScatterChart extends BarChart {
 
 	/**
-	 * Creates the configuration for the chart.
-	 * Override for other chart types.
+	 * Takes the given serieses and converts them to a series of XY pairs.
+	 * The serieses are interpreted as alternating x and y values.
 	 */
-	protected static createChartConfig(serieses: number[][]): any {
+	protected static createXyAlternatingSerieses(serieses: number[][]): XY[][] {
 		// Convert number series in series of x and y
-		const xySerieses = new Array<Array<{x: number, y: number}>>();
+		const xySerieses = new Array<Array<XY>>();
 		for (const series of serieses) {
 			const xySeries = new Array<{x: number, y: number}>();
 			const len = series.length;
 			for (let i = 0; i < len - 1; i += 2) {
 				const a = series[i];
-				const b = series[i+1];
+				const b = series[i + 1];
 				xySeries.push({x: a, y: b});	// x/y
 			}
 			xySerieses.push(xySeries);
 		}
+		return xySerieses;
+	}
+
+
+	/**
+	 * Creates the configuration for the chart.
+	 * Override for other chart types.
+	 */
+	protected static createChartConfig(serieses: number[][]): any {
+		// Convert number series in series of x and y
+		const xySerieses = this.createXyAlternatingSerieses(serieses);
 
 		// Setup datasets for line/bar chart
 		const datasets = [];
@@ -70,6 +81,24 @@ export class ScatterChart extends BarChart {
 
 		// Return
 		return config;
+	}
+
+
+	/**
+	 * Create the first button. Upper left corner.
+	 * Here it is used to change between data series interpretation:
+	 * a) x/y pairs
+	 * b) x in first line, y in lines below
+	 * @param chart The just created chart is passed here.
+	 * @param serieses The series data is passed here.
+	 */
+	protected static createFirstButton(chart: any, serieses: any): HTMLButtonElement {
+		const typeButton = document.createElement('button') as HTMLButtonElement;
+		typeButton.textContent = "X/Y Pairs"
+		typeButton.addEventListener("click", () => {
+		});
+
+		return typeButton;
 	}
 
 }

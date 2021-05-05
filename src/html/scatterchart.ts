@@ -3,6 +3,16 @@ declare var Chart: any;
 
 
 /**
+ * Defines the way of parsing.
+ */
+enum ParseValues {
+	ALTERNATING_XY = 0,	// x and y values alternate
+	ALTERNATING_YX,	// y and x values alternate
+	FIRST_LINE_X,	// The first line contains x values, the other y values
+	FIRST_LINE_Y,	// The first line contains y values, the other x values
+}
+
+/**
  * The chart data representation, x/y pair.
  */
 interface XY {
@@ -16,6 +26,14 @@ interface XY {
  */
 export class ScatterChart extends BarChart {
 
+	// The titles for the button to switch parsing
+	protected static ParsingTitle = [
+		'X/Y Pairs',
+		'Y/X Pairs',
+		'First Line X',
+		'First Line Y',
+	];
+
 	/**
 	 * Creates a canvas etc. and shows the chart.
 	 * @param text The text that is converted to a number series.
@@ -26,6 +44,10 @@ export class ScatterChart extends BarChart {
 		// Create an instance
 		new ScatterChart(text, path, range);
 	}
+
+	// Stores the parsing of the number series.
+	protected static parseValues = ParseValues.ALTERNATING_XY;
+	protected parseValues: ParseValues;
 
 
 	/**
@@ -44,10 +66,10 @@ export class ScatterChart extends BarChart {
 	 * Takes the given serieses and converts them to a series of XY pairs.
 	 * The serieses are interpreted as alternating x and y values.
 	 */
-	protected createXyAlternatingSerieses(serieses: number[][]): XY[][] {
+	protected createXyAlternatingSerieses(): XY[][] {
 		// Convert number series in series of x and y
 		const xySerieses = new Array<Array<XY>>();
-		for (const series of serieses) {
+		for (const series of this.serieses) {
 			const xySeries = new Array<{x: number, y: number}>();
 			const len = series.length;
 			for (let i = 0; i < len - 1; i += 2) {
@@ -62,12 +84,49 @@ export class ScatterChart extends BarChart {
 
 
 	/**
+	 * Exchanged the x and y of all pairs.
+	 */
+	protected switchSeriesesXy(xYserieses: XY[][]) {
+		for (const series of xYserieses) {
+			for (const pair of series) {
+				// Exchange x and y
+				const h = pair.x;
+				pair.x = pair.y;
+				pair.y = h;
+			}
+		}
+	}
+
+
+	/**
 	 * Creates the configuration for the chart.
 	 * Override for other chart types.
 	 */
-	protected createChartConfig(serieses: number[][]): any {
-		// Convert number series in series of x and y
-		const xySerieses = this.createXyAlternatingSerieses(serieses);
+	protected createChartConfig(): any {
+		// Check if it is the first call
+		if (this.parseValues == undefined) {
+			// Initialize the first time
+			this.parseValues = ScatterChart.parseValues;
+		}
+
+		// Decide on way of parsing
+		let xySerieses;
+		switch (this.parseValues) {
+			case ParseValues.ALTERNATING_XY:
+			case ParseValues.ALTERNATING_YX:
+				// Convert number series in series of x and y
+				xySerieses = this.createXyAlternatingSerieses();
+				if (this.parseValues == ParseValues.ALTERNATING_YX) {
+					this.switchSeriesesXy(xySerieses);
+				}
+				break;
+			case ParseValues.FIRST_LINE_X:
+			case ParseValues.FIRST_LINE_Y:
+				// Convert number series:
+				// 1 rst line in series of x and y
+				xySerieses = this.createXyAlternatingSerieses();
+				break;
+		}
 
 		// Setup datasets for line/bar chart
 		const datasets = [];
@@ -114,15 +173,27 @@ export class ScatterChart extends BarChart {
 	 * a) x/y pairs
 	 * b) x in first line, y in lines below
 	 * @param chart The just created chart is passed here.
-	 * @param serieses The series data is passed here.
 	 */
-	protected createFirstButton(chart: any, serieses: any): HTMLButtonElement {
-		const typeButton = document.createElement('button') as HTMLButtonElement;
-		typeButton.textContent = "X/Y Pairs"
-		typeButton.addEventListener("click", () => {
+	protected createFirstButton(chart: any): HTMLButtonElement {
+		const button = document.createElement('button') as HTMLButtonElement;
+		button.textContent = ScatterChart.ParsingTitle[this.parseValues];
+		button.addEventListener("click", () => {
+			// Cycle parsing
+			this.parseValues++;
+			if (this.parseValues > ParseValues.FIRST_LINE_Y)
+				this.parseValues = ParseValues.ALTERNATING_XY;
+			ScatterChart.parseValues = this.parseValues;
+			// Set button title
+			button.textContent = ScatterChart.ParsingTitle[this.parseValues];
+			// Re-evaluate data
+			const config = this.createChartConfig();
+			// Update
+			chart.config.data.datasets = config.data.datasets;
+			chart.update();
 		});
 
-		return typeButton;
+		return button;
 	}
+
 
 }

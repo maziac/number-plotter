@@ -38,6 +38,7 @@ export class BarChart {
 
 	// The last selected color. Global.
 	protected static colorIndex = -1;
+	protected colorIndex: number;
 
 
 	// All available chart types to cycle through.
@@ -48,13 +49,13 @@ export class BarChart {
 
 	// The last selected chart type. Global.
 	protected static chartTypeIndex = 0;
-
-
-	// The last selected color. Local to this instance.
-	protected colorIndex: number;
-
-	// The last selected chart type. Local to this instance.
 	protected chartTypeIndex: number;
+
+	// The data serieses after parsing the text data.
+	protected serieses: number[][];
+
+	// The short text (the start of the parsed text) that is shown on top
+	protected shortText: string;
 
 
 	/**
@@ -85,11 +86,10 @@ export class BarChart {
 		this.nextColor();
 
 		// Convert text into number series
-		const {serieses, shortText} = this.convertToSerieses(text);
+		this.convertToSerieses(text);
 
 		// Get the config for the chart
-		const config = this.createChartConfig(serieses);
-
+		const config = this.createChartConfig();
 
 		// Get div_root
 		const divRoot = document.getElementById('div_root');
@@ -117,11 +117,11 @@ export class BarChart {
 		let fileText = basename + ';' + lineStart.toString();
 		if (lineStart < lineEnd)
 			fileText += '-' + lineEnd.toString();
-		if (shortText) {
+		if (this.shortText) {
 			fileText += ':';
 			// Add a text node
 			const shortTextNode = document.createElement('span') as HTMLElement;
-			shortTextNode.innerHTML = '&nbsp;&nbsp;' + shortText;
+			shortTextNode.innerHTML = '&nbsp;&nbsp;' + this.shortText;
 			textNode.append(shortTextNode);
 		}
 		refNode.href = path;
@@ -209,8 +209,7 @@ export class BarChart {
 	 * @param text The multiline text with numbers.
 	 * @returns {serieses: An array with serieses, shortText: A description for the serieses}
 	 */
-	protected convertToSerieses(text: string): {serieses: number[][], shortText: string} {
-
+	protected convertToSerieses(text: string) {
 		// Split lines of text
 		const lines = text.replace(/\r/g, '').split('\n');
 		// Convert text into number series
@@ -249,8 +248,9 @@ export class BarChart {
 			shortText = shortText.substr(0, maxShortTextLength) + ' ...';
 		}
 
-		// Return
-		return {serieses, shortText};
+		// Store
+		this.serieses = serieses;
+		this.shortText = shortText;
 	}
 
 
@@ -272,8 +272,8 @@ export class BarChart {
 	/**
 	 * Creates labels for the serieses.
 	 */
-	protected createLabels(serieses: number[][]): string[] {
-		const maxCount = this.getMaxCount(serieses);
+	protected createLabels(): string[] {
+		const maxCount = this.getMaxCount(this.serieses);
 		// Now create labels
 		const labels = new Array<string>(maxCount);
 		for (let i = 0; i < maxCount; i++)
@@ -287,14 +287,14 @@ export class BarChart {
 	 * Creates the configuration for the chart.
 	 * Override for other chart types.
 	 */
-	protected createChartConfig(serieses: number[][]): any {
+	protected createChartConfig(): any {
 		// Create labels
-		const labels = this.createLabels(serieses);
+		const labels = this.createLabels();
 
 		// Setup datasets for line/bar chart
 		const datasets = [];
 		let k = 0;
-		for (const series of serieses) {
+		for (const series of this.serieses) {
 			datasets.push({
 				label: '',
 				backgroundColor: this.getCurrentBkgColor(k),
@@ -318,7 +318,7 @@ export class BarChart {
 			options: {
 				plugins: {
 					legend: {
-						display: (serieses.length > 1)
+						display: (this.serieses.length > 1)
 					}
 				},
 				animation: true,
@@ -336,9 +336,8 @@ export class BarChart {
 	 * Here it is used to toggle the chart type between
 	 * line and bar.
 	 * @param chart The just created chart is passed here.
-	 * @param data Any additional data can be passed here. Unused.
 	 */
-	protected createFirstButton(chart: any, data?: any): HTMLButtonElement {
+	protected createFirstButton(chart: any): HTMLButtonElement {
 		const typeButton = document.createElement('button') as HTMLButtonElement;
 		typeButton.textContent = this.capitalize(chart.config.type);
 		typeButton.addEventListener("click", () => {

@@ -1,6 +1,6 @@
 declare var acquireVsCodeApi: any;
 declare var window: Window & typeof globalThis;
-declare var BarChart: any;
+declare var BarEtcChart: any;
 declare var ScatterChart: any;
 
 
@@ -16,7 +16,7 @@ window.addEventListener('message', event => {
 	switch (message.command) {
 		case 'lineChart':
 			{
-				BarChart.show(message.text, message.path, message.range);
+				BarEtcChart.show(message.text, message.path, message.range);
 			} break;
 		case 'xyChart':
 			{

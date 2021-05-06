@@ -88,6 +88,24 @@ export class PlotView {
 		const vscodeResPath = this.vscodePanel.webview.asWebviewUri(resourcePath).toString();
 		html = html.replace('${vscodeResPath}', vscodeResPath);
 
+		// Get donated state
+		const configuration = PackageInfo.getConfiguration();
+		const donated = configuration.get<boolean>('donated');
+
+		// Set button
+		if (!donated) {
+			html = html.replace('<!--${donate}-->', `
+If you like the extension please consider a donation and click one of the buttons below <br>
+<div class="button-group">
+		<a class="button button--flat-primary" title="Become a sponsor on Github" href="https://github.com/sponsors/maziac"
+			target="_blank">Become a Sponsor</a>
+		<a class="button button--flat-primary" title="Donate via PayPal"
+			href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8S4R8HPXVCXUL&source=url"
+			target="_blank">Donate via PayPal</a>
+</div>
+<br><hr><br>`);
+		}
+
 		// Set content
 		this.vscodePanel.webview.html = html;
 	}

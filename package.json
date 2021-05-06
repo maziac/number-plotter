@@ -46,12 +46,12 @@
         "commands": [
             {
                 "command": "number-plotter.linechart",
-                "title": "Line/Bar Chart of the selected Series of Numbers",
+                "title": "Line/Bar Chart",
                 "category": "number-plotter"
             },
             {
                 "command": "number-plotter.xychart",
-                "title": "X/Y Chart of the selected Series of Numbers",
+                "title": "X/Y Chart",
                 "category": "number-plotter"
             }
         ],
@@ -66,15 +66,26 @@
             ],
             "editor/context": [
                 {
-                    "command": "number-plotter.linechart",
+                    "submenu": "number-plotter.submenu",
                     "when": "editorHasSelection"
+                }
+            ],
+            "number-plotter.submenu": [
+                {
+                    "command": "number-plotter.linechart"
                 },
                 {
-                    "command": "number-plotter.xychart",
-                    "when": "editorHasSelection"
+                    "command": "number-plotter.xychart"
                 }
             ]
         },
+        "submenus": [
+            {
+                "id": "number-plotter.submenu",
+                "label": "Plot"
+            }
+        ],
+
         "configuration": {
             "type": "object",
             "title": "Number Plotter configuration",

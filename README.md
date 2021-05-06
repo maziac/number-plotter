@@ -19,44 +19,9 @@ If you like the "Number Plotter" please consider supporting it.
 The "Number Plotter" takes a series of selected numbers and creates a plot out of it.
 
 
-
-
-
-# Available Charts
-
-## General
-
-Each selected line becomes one data series in the chart.
-
-## Line / Bar Chart
-
-The user can select if this is shown as line or bar chart via a button.
-All points are shown at equidistant positions.
-
-
-## Scatter Chart
-
-This is for x/y plots.
-The data is expected to be in either of 2 different formats.
-The user can switch x/y via a button.
-
-### Format 1: Alternating x/y positions
-
-The x/y positions alternate, e.g.:
-0.1,1.0, 0.3,1.5
-for x1/y1, x2/y2.
-
-### Format 3: x positions in first line
-
-Only if several lines are selected.
-The first line contains the x positions.
-The other lines contain the y values of the different data series.
-
-
-
 # Example / Howto
 
-Select the number series below, right-click and select "Line/Bar Chart ...":
+Select the number series below, right-click and select "Plot->Line/Bar Chart":
 
 0 2 1 3 5 6 4 2
 
@@ -69,7 +34,7 @@ You can change the color with the "Color" button and you can toggle between line
 
 ![](assets/plot2.jpg)
 
-Now select this number series. Select both lines. Again right-click and select "Line/Bar Chart ...":
+Now select this number series. Select both lines. Again right-click and select "Plot->Line/Bar Chart":
 
 0 2 5 3 7 4
 3 1 6 3 6 4
@@ -84,7 +49,7 @@ Again you can change the type:
 
 Apart from line/bar charts you can also display x/y graphs (i.e. scatter charts).
 
-Please select the numbers below, right-click and select "X/Y Chart ...":
+Please select the numbers below, right-click and select "Plot->X/Y Chart":
 
 1 1.6 1.4 3.9 2.1 2.4 4.2 5.3
 
@@ -110,7 +75,7 @@ If you select several lines you have two more options for parsing the data:
 a) The first line contains only x values and the other lines contain y values for different data series
 b) vice versa. I.e. the first line contains the y values and the other lines the different x values.
 
-E.g. select the following lines, create the X/ chart and select "First Line X" from the button:
+E.g. select the following lines, create the X/Y chart and select "First Line X" from the button:
 
 1 1.5 2 2.5 3 3.5
 2 4 6 3 2 1
@@ -144,3 +109,4 @@ Here are examples of number formats that are recognized:
 2e-9
 12
 -2.25
+

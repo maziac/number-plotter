@@ -24,7 +24,7 @@ interface XY {
 /**
  * A static class which contains functions to draw/prepare a x/ chart.
  */
-export class ScatterChart extends BarChart {
+export class ScatterChart extends BarEtcChart {
 
 	// The titles for the button to switch parsing
 	protected static ParsingTitle = [
@@ -63,6 +63,24 @@ export class ScatterChart extends BarChart {
 
 
 	/**
+	 * Checks if the parse value is iin the allowed range.
+	 * If not it is set to an allowed value.
+	 * I.e. if ther is only one line selected then it is not
+	 * possible to use FIRST_LINE_X or FIRST_LINE_Y.
+	 */
+	protected checkParseValuesRange() {
+		if (this.parseValues > ParseValues.FIRST_LINE_Y)
+			this.parseValues = ParseValues.ALTERNATING_XY;
+		if (this.serieses.length < 2) {
+			// There is only one line selected.
+			// I.e. the FIRST_.. parsing is not possible
+			if (this.parseValues > ParseValues.ALTERNATING_YX)
+				this.parseValues = ParseValues.ALTERNATING_XY;
+		}
+	}
+
+
+	/**
 	 * Takes the given serieses and converts them to a series of XY pairs.
 	 * The serieses are interpreted as alternating x and y values.
 	 */
@@ -78,6 +96,38 @@ export class ScatterChart extends BarChart {
 				xySeries.push({x: a, y: b});	// x/y
 			}
 			xySerieses.push(xySeries);
+		}
+		return xySerieses;
+	}
+
+
+	/**
+	 * Takes the given serieses and converts them to a series of XY pairs.
+	 * The serieses are interpreted as:
+	 * First line are x values, other values are y values.
+	 */
+	protected createXFirstSerieses(): XY[][] {
+		// Convert number series in series of x and y
+		const xySerieses = new Array<Array<XY>>();
+		const len = this.serieses.length;
+		if (len >= 2) {
+			// Get first line, X values
+			const x = this.serieses[0];
+			const xLen = x.length;
+			// Read teh other lines, Y values
+			for (let l = 1; l < len; l++) {
+				const series = this.serieses[l];
+				const xySeries = new Array<{x: number, y: number}>();
+				let len = series.length;
+				if (len > xLen)
+					len = xLen;	// Use minimum of both
+				for (let i = 0; i < len ; i++) {
+					const a = x[i];
+					const b = series[i];
+					xySeries.push({x: a, y: b});	// x/y
+				}
+				xySerieses.push(xySeries);
+			}
 		}
 		return xySerieses;
 	}
@@ -107,6 +157,9 @@ export class ScatterChart extends BarChart {
 		if (this.parseValues == undefined) {
 			// Initialize the first time
 			this.parseValues = ScatterChart.parseValues;
+			// Check if value is allowed
+			this.checkParseValuesRange();
+			ScatterChart.parseValues = this.parseValues;
 		}
 
 		// Decide on way of parsing
@@ -116,16 +169,18 @@ export class ScatterChart extends BarChart {
 			case ParseValues.ALTERNATING_YX:
 				// Convert number series in series of x and y
 				xySerieses = this.createXyAlternatingSerieses();
-				if (this.parseValues == ParseValues.ALTERNATING_YX) {
-					this.switchSeriesesXy(xySerieses);
-				}
 				break;
 			case ParseValues.FIRST_LINE_X:
 			case ParseValues.FIRST_LINE_Y:
 				// Convert number series:
-				// 1 rst line in series of x and y
-				xySerieses = this.createXyAlternatingSerieses();
+				// 1rst line x, rest is y
+				xySerieses = this.createXFirstSerieses();
 				break;
+		}
+
+		// Exchange x and y ?
+		if (this.parseValues == ParseValues.ALTERNATING_YX || this.parseValues == ParseValues.FIRST_LINE_Y) {
+			this.switchSeriesesXy(xySerieses);
 		}
 
 		// Setup datasets for line/bar chart
@@ -180,8 +235,7 @@ export class ScatterChart extends BarChart {
 		button.addEventListener("click", () => {
 			// Cycle parsing
 			this.parseValues++;
-			if (this.parseValues > ParseValues.FIRST_LINE_Y)
-				this.parseValues = ParseValues.ALTERNATING_XY;
+			this.checkParseValuesRange();
 			ScatterChart.parseValues = this.parseValues;
 			// Set button title
 			button.textContent = ScatterChart.ParsingTitle[this.parseValues];

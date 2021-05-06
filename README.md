@@ -110,3 +110,8 @@ Here are examples of number formats that are recognized:
 12
 -2.25
 
+
+# Acknowledgements
+
+This extension makes heavy use of the "[Chart.js](https://www.chartjs.org)" library.
+Many thanks to the authors.

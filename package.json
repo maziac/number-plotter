@@ -66,12 +66,26 @@
             ],
             "editor/context": [
                 {
-                    "command": "number-plotter.linechart"
+                    "command": "number-plotter.linechart",
+                    "when": "editorHasSelection"
                 },
                 {
-                    "command": "number-plotter.xychart"
+                    "command": "number-plotter.xychart",
+                    "when": "editorHasSelection"
                 }
             ]
+        },
+        "configuration": {
+            "type": "object",
+            "title": "Number Plotter configuration",
+            "properties": {
+                "number-plotter.donated": {
+                    "description": "If you donated (press the donate button in the help) you can hide the button by setting this parameter.",
+                    "type": "boolean",
+                    "scope": "resource",
+                    "default": false
+                }
+            }
         }
     },
     "dependencies": {

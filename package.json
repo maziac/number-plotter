@@ -2,7 +2,7 @@
     "name": "number-plotter",
     "displayName": "Number Plotter",
     "description": "Creates plots/charts from a series of selected numbers.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "publisher": "maziac",
     "license": "MIT",
     "keywords": [

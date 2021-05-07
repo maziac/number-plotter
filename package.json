@@ -85,7 +85,6 @@
                 "label": "Plot"
             }
         ],
-
         "configuration": {
             "type": "object",
             "title": "Number Plotter configuration",

@@ -1,6 +1,7 @@
 declare var document: Document;
 declare var Chart: any;
-const vscode = acquireVsCodeApi();
+declare var vscode: any;
+
 
 /**
  * The chart data representation, x/y pair.
@@ -16,24 +17,24 @@ interface Data {
  */
 export class BarEtcChart {
 
-	// Different colors.
-	protected static colorNames = [
+	protected static bkgColors = [
 		'yellow',
 		'red',
 		'green',
-		'blue',
+		'steelblue',
+		'peru',	// brown
+		'gray',
+		'orange'
 	];
-	protected static bkgColors = [
-		'rgb(255, 255, 0)',
-		'rgb(255, 64, 64)',
-		'rgb(0, 255, 0)',
-		'rgb(128, 128, 255)',
-	];
+
 	protected static borderColors = [
-		'rgb(128, 128, 0)',
-		'rgb(128, 32, 32)',
-		'rgb(0, 128, 0)',
-		'rgb(64, 64, 128)',
+		'khaki',
+		'crimson',
+		'darkgreen',
+		'cornflowerblue',
+		'chocolate',
+		'dimgray',
+		'darkorange'
 	];
 
 	// The last selected color. Global.
@@ -56,19 +57,6 @@ export class BarEtcChart {
 
 	// The short text (the start of the parsed text) that is shown on top
 	protected shortText: string;
-
-
-	/**
-	 * Creates a canvas etc. and shows the chart.
-	 * There is also a button to cycle through the different chart types.
-	 * @param text The text that is converted to a number series.
-	 * @param path The file path.
-	 * @param range (vscode.Range) The original range. Is passed back when clicked.
-	 */
-	public static show(text: string, path: string, range: any) {
-		// Create an instance
-		new BarEtcChart(text, path, range);
-	}
 
 
 	/**
@@ -226,6 +214,9 @@ export class BarEtcChart {
 				.split(/[,;\s]/);
 			for (let text of textArray) {
 				text = text.trim();
+				// Strip any leading non digit or letter characters from the start,
+				// e.g. brackets.
+				text = text.replace(/^[^\w\d\.\-]*/, '');
 				if (text.length > 0) {
 					const y = parseFloat(text);
 					if (!isNaN(y))
@@ -376,23 +367,15 @@ export class BarEtcChart {
 	/**
 	 * Return the current line color.
 	 */
-	protected getCurrentColorName(): string {
-		return BarEtcChart.colorNames[this.colorIndex];
-	}
-
-
-	/**
-	 * Return the current line color.
-	 */
 	protected getCurrentBkgColor(offs = 0): string {
-		return BarEtcChart.bkgColors[(this.colorIndex + offs) % BarEtcChart.colorNames.length];
+		return BarEtcChart.bkgColors[(this.colorIndex + offs) % BarEtcChart.bkgColors.length];
 	}
 
 	/**
 	 * Return the current point color.
 	 */
 	protected getCurrentBorderColor(offs = 0): string {
-		return BarEtcChart.borderColors[(this.colorIndex + offs) % BarEtcChart.colorNames.length];
+		return BarEtcChart.borderColors[(this.colorIndex + offs) % BarEtcChart.borderColors.length];
 	}
 
 
@@ -401,7 +384,7 @@ export class BarEtcChart {
 	 */
 
 	protected nextColor() {
-		this.colorIndex = (this.colorIndex + 1) % BarEtcChart.colorNames.length;
+		this.colorIndex = (this.colorIndex + 1) % BarEtcChart.bkgColors.length;
 		BarEtcChart.colorIndex = this.colorIndex;	// Use for next chart
 	}
 

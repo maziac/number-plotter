@@ -34,16 +34,6 @@ export class ScatterChart extends BarEtcChart {
 		'First Line Y',
 	];
 
-	/**
-	 * Creates a canvas etc. and shows the chart.
-	 * @param text The text that is converted to a number series.
-	 * @param path The file path.
-	 * @param range (vscode.Range) The original range. Is passed back when clicked.
-	 */
-	public static show(text: string, path: string, range: any) {
-		// Create an instance
-		new ScatterChart(text, path, range);
-	}
 
 	// Stores the parsing of the number series.
 	protected static parseValues = ParseValues.ALTERNATING_XY;

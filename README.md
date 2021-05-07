@@ -16,7 +16,7 @@ If you like "Number Plotter" please consider supporting it.
 ![](assets/number-plotter.gif)
 
 
-The "Number Plotter" takes a series of selected numbers and creates a plot out of it.
+The "Number Plotter" is a vscode extension that takes a series of selected numbers and creates a plot out of it.
 
 
 # Example / Howto
@@ -114,6 +114,8 @@ First point: 1, Second point: 3, Third point: 2
 
 Also, it does not matter which number separator you use. Be it a space, a tab, a colon or what ever.
 
+If you, however, find a parsing problem please report it.
+
 Here are examples of number formats that are recognized:
 
 ~~~
@@ -128,3 +130,5 @@ Here are examples of number formats that are recognized:
 
 This extension makes heavy use of the "[Chart.js](https://www.chartjs.org)" library.
 Many thanks to the authors.
+
+

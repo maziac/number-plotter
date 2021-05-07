@@ -91,7 +91,7 @@
             "title": "Number Plotter configuration",
             "properties": {
                 "number-plotter.donated": {
-                    "description": "If you donated (press the donate button in the help) you can hide the button by setting this parameter.",
+                    "description": "If you donated (press the donate button in the help) you can hide the button by setting this parameter. (After closing/re-opening the window.)",
                     "type": "boolean",
                     "scope": "resource",
                     "default": false

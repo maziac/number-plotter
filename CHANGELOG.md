@@ -1,5 +1,9 @@
 # Changelog
 
+# 1.0.2
+- Removed commands from palette.
+- vscode 'categories' corrected.
+
 # 1.0.1
 - Reduced footprint.
 

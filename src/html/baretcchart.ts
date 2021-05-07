@@ -18,7 +18,7 @@ interface Data {
 export class BarEtcChart {
 
 	protected static bkgColors = [
-		'yellow',
+		'gold',
 		'red',
 		'green',
 		'steelblue',
@@ -28,7 +28,7 @@ export class BarEtcChart {
 	];
 
 	protected static borderColors = [
-		'khaki',
+		'yellow',
 		'crimson',
 		'darkgreen',
 		'cornflowerblue',

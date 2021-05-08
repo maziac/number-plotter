@@ -81,8 +81,8 @@ export class ScatterChart extends BarEtcChart {
 			const xySeries = new Array<{x: number, y: number}>();
 			const len = series.length;
 			for (let i = 0; i < len - 1; i += 2) {
-				const a = series[i];
-				const b = series[i + 1];
+				const a = series[i].value;
+				const b = series[i + 1].value;
 				xySeries.push({x: a, y: b});	// x/y
 			}
 			xySerieses.push(xySeries);
@@ -112,8 +112,8 @@ export class ScatterChart extends BarEtcChart {
 				if (len > xLen)
 					len = xLen;	// Use minimum of both
 				for (let i = 0; i < len ; i++) {
-					const a = x[i];
-					const b = series[i];
+					const a = x[i].value;
+					const b = series[i].value;
 					xySeries.push({x: a, y: b});	// x/y
 				}
 				xySerieses.push(xySeries);

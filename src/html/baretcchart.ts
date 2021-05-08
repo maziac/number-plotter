@@ -82,6 +82,9 @@ export class BarEtcChart {
 	// The original range for the text that is parsed.
 	protected range: any;	// vscode.Range
 
+	// The created chart object.
+	protected chart: any;	// Chart
+
 
 	/**
 	 * Creates a canvas etc. and shows the chart.
@@ -163,10 +166,10 @@ export class BarEtcChart {
 		node.append(canvas);
 
 		// Add the chart to it
-		const chart = new Chart(canvas, config);
+		this.chart = new Chart(canvas, config);
 
 		// Add a button to change the chart type
-		const typeButton = this.createFirstButton(chart);
+		const typeButton = this.createFirstButton(this.chart);
 		buttonNode.append(typeButton);
 
 		// Add a button to change the color
@@ -177,13 +180,13 @@ export class BarEtcChart {
 			// Next color
 			this.nextColor();
 			// Set new color
-			const datasets = chart.config.data.datasets;
+			const datasets = this.chart.config.data.datasets;
 			const len = datasets.length;
 			for (let k = 0; k < len; k++) {
-				chart.config.data.datasets[k].backgroundColor = this.getCurrentBkgColor(k);
-				chart.config.data.datasets[k].borderColor = this.getCurrentBorderColor(k);
+				this.chart.config.data.datasets[k].backgroundColor = this.getCurrentBkgColor(k);
+				this.chart.config.data.datasets[k].borderColor = this.getCurrentBorderColor(k);
 			}
-			chart.update();
+			this.chart.update();
 		});
 
 		// Add a button to remove the chart
@@ -222,14 +225,15 @@ export class BarEtcChart {
 	 * Splits the given text in serieses of numbers.
 	 * Each new line in the text will become an own series.
 	 * Together with teh value it's location inside the text document is stored.
-	 * This way it is possibleto click on a point and navigate to that point
+	 * This way it is possible to click on a point and navigate to that point
 	 * in the document.
 	 * @param text The multiline text with numbers.
 	 * @returns {serieses: An array with serieses, shortText: A description for the serieses}
 	 */
 	protected convertToSerieses(text: string) {
 		// For the range
-		let startLine = this.range.start.line;
+		let lineNr = this.range.start.line;
+		let clmn = this.range.start.character;
 		// Split lines of text
 		const lines = text.replace(/\r/g, '').split('\n');
 		// Convert text into number series
@@ -239,23 +243,37 @@ export class BarEtcChart {
 		// For each line get the number series
 		for (const line of lines) {
 			const yArray: SeriesData[] = [];
-			const trimmedLine = line.trim();
-			if (trimmedLine.length == 0)
-				continue;
-			const textArray = trimmedLine
+			const rLine = line.trimRight();
+			const textArray = rLine
 				.split(/[,;\s]/);
-			for (let text of textArray) {
-				text = text.trim();
-				// Strip any leading non digit or letter characters from the start,
-				// e.g. brackets.
-				text = text.replace(/^[^\w\d\.\-]*/, '');
+			for (const text of textArray) {
+				// Check if text available
 				if (text.length > 0) {
-					const value = parseFloat(text);
-					if (!isNaN(value)) {
-			//			const range = new vscode.Range(startLine, startCharacter: number, endLine: number, endCharacter: startLine);
-						yArray.push({value, range: undefined});
+					// Strip any leading non digit or letter characters from the start,
+					// e.g. brackets.
+					const strippedText = text.replace(/^[^\w\d\.\-]*/, '');
+					const len = strippedText.length;
+					if (len > 0) {
+						const value = parseFloat(strippedText);
+						if (!isNaN(value)) {
+							const range = {
+								start: {
+									line: lineNr,
+									character: clmn
+								},
+								end: {
+									line: lineNr,
+									character: clmn+len
+								}
+							};
+							yArray.push({value, range});
+						}
 					}
+					// Step over
+					clmn += text.length;
 				}
+				// Next
+				clmn++;	// For the split character
 			}
 			// If at least one element than add it to the serieses.
 			if (yArray.length > 0) {
@@ -263,8 +281,11 @@ export class BarEtcChart {
 				serieses.push(yArray);
 				// Store text from the first used line
 				if (!shortText)
-					shortText = trimmedLine;
+					shortText = line.trim();
 			}
+			// Next line starts at 0
+			clmn = 0;
+			lineNr++;
 		}
 
 		// Shorten smallText
@@ -347,12 +368,14 @@ export class BarEtcChart {
 			type: this.getCurrentChartType(),
 			data,
 			options: {
-				'onClick': (evt: any, item: any) => {
-					if (!item)
+				'onClick': (evt: any) => {
+					const activePoints = this.chart.getElementsAtEventForMode(evt, 'nearest', {intersect: true}, false);
+					console.log("activePoints:", activePoints);
+					if (!activePoints)
 						return;
-					if (!item.length)
+					if (!activePoints.length)
 						return;
-					this.pointClicked(item[0]);
+					this.pointClicked(activePoints[0]);
 				},
 				plugins: {
 					legend: {

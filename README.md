@@ -39,8 +39,8 @@ You can change the color with the "Color" button and you can toggle between line
 Now select this number series. Select both lines. Again right-click and select "Plot->Line/Bar Chart":
 
 ~~~
-0 2 5 3 7 4
-3 1 6 3 6 4
+  0 2 5   3 7  4
+3 1 6 3 6   4
 ~~~
 
 You will see 2 plots, i.e. each select line becomes one data series:

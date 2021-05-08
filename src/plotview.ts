@@ -135,10 +135,15 @@ If you like the extension please consider a donation and click one of the button
 				const doc: vscode.TextDocument = await vscode.workspace.openTextDocument(uri);
 				const editor: vscode.TextEditor = await vscode.window.showTextDocument(doc);
 				// Select range
-				const range: vscode.Range = message.range;
-				const selection = new vscode.Selection(range.start.line, range.start.character, range.end.line, range.end.character);
-				editor.selection = selection;
-				// Scroll to range (if necessary)
+				const ranges: vscode.Range[] = message.ranges;
+				const selections: vscode.Selection[] = [];
+				for (const range of ranges) {
+					const selection = new vscode.Selection(range.start.line, range.start.character, range.end.line, range.end.character);
+					selections.push(selection);
+				}
+				editor.selections = selections;
+				// Scroll to range first range
+				const range = ranges[0];
 				editor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
 				break;
 		}

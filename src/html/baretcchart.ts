@@ -153,7 +153,7 @@ export class BarEtcChart {
 			vscode.postMessage({
 				command: 'select',
 				path: this.path,
-				range: this.range
+				ranges: [this.range]
 			});
 		});
 
@@ -369,13 +369,7 @@ export class BarEtcChart {
 			data,
 			options: {
 				'onClick': (evt: any) => {
-					const activePoints = this.chart.getElementsAtEventForMode(evt, 'nearest', {intersect: true}, false);
-					console.log("activePoints:", activePoints);
-					if (!activePoints)
-						return;
-					if (!activePoints.length)
-						return;
-					this.pointClicked(activePoints[0]);
+					this.onClick(evt);
 				},
 				plugins: {
 					legend: {
@@ -473,17 +467,34 @@ export class BarEtcChart {
 	 * Called if a point was clicked.
 	 * @param dataPoint Contains the point info, e.g. datasetIndex and index.
 	 */
-	protected pointClicked(dataPoint: any) {
-		console.log("datapoint:", dataPoint);
+	protected pointClicked(dataPoints: any) {
+		console.log("datapoint:", dataPoints);
 		// Get point with range
-		const point = this.serieses[dataPoint.datasetIndex][dataPoint.index];
-		const range = point.range;
+		const ranges = [];
+		for (const dataPoint of dataPoints) {
+			const point = this.serieses[dataPoint.datasetIndex][dataPoint.index];
+			ranges.push(point.range);
+		}
 		// Send message to extension to select the range
 		vscode.postMessage({
 			command: 'select',
 			path: this.path,
-			range: range
+			ranges: ranges
 		});
+	}
+
+
+	/**
+	 * Chart was clicked.
+	 */
+	protected onClick(evt: any) {
+		const activePoints = this.chart.getElementsAtEventForMode(evt, 'nearest', {intersect: true}, false);
+		//console.log("activePoints:", activePoints);
+		if (!activePoints)
+			return;
+		if (!activePoints.length)
+			return;
+		this.pointClicked(activePoints);
 	}
 }
 

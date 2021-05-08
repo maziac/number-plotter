@@ -1,5 +1,5 @@
 declare var document: Document;
-declare var Chart: any;
+declare var vscode: any;
 
 
 /**
@@ -197,6 +197,9 @@ export class ScatterChart extends BarEtcChart {
 			type: 'scatter',
 			data,
 			options: {
+				'onClick': (evt: any) => {
+					this.onClick(evt);
+				},
 				plugins: {
 					legend: {
 						display: (xySerieses.length > 1)
@@ -240,4 +243,47 @@ export class ScatterChart extends BarEtcChart {
 	}
 
 
+	/**
+	 * Called if a point was clicked.
+	 * A point in the scater chart consist of 2 data: x and y.
+	 * Both are being selected.
+	 * @param dataPoint Contains the point info, e.g. datasetIndex and index.
+	 */
+	protected pointClicked(dataPoints: any) {
+		console.log("datapoint:", dataPoints);
+		// Get points with range
+		const ranges = [];
+		// Depending on parsing
+		switch (this.parseValues) {
+			case ParseValues.ALTERNATING_XY:
+			case ParseValues.ALTERNATING_YX:
+				// X/Y or Y/X pairs
+				for (const dataPoint of dataPoints) {
+					const i = 2 * dataPoint.index;
+					const data1 = this.serieses[dataPoint.datasetIndex][i];
+					ranges.push(data1.range);
+					const data2 = this.serieses[dataPoint.datasetIndex][i + 1];
+					ranges.push(data2.range);
+				}
+				break;
+			case ParseValues.FIRST_LINE_X:
+			case ParseValues.FIRST_LINE_Y:
+				for (const dataPoint of dataPoints) {
+					const i = dataPoint.index;
+					// First range from first line
+					const data1 = this.serieses[0][i];
+					ranges.push(data1.range);
+					// First range from data set
+					const data2 = this.serieses[1+dataPoint.datasetIndex][i];
+					ranges.push(data2.range);
+				}
+				break;
+		}
+		// Send message to extension to select the range
+		vscode.postMessage({
+			command: 'select',
+			path: this.path,
+			ranges: ranges
+		});
+	}
 }

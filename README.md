@@ -101,6 +101,8 @@ Followed by a short text containing the start of the number series.
 
 If you click on the filename then vscode will take you to the file and the line(s) used for the chart. The same lines will be selected again, so that you can always check what numbers have been used for the chart.
 
+**Furthermore if you click on a bar or a point the correspondent number(s) gets highlighted in the document.**
+
 # Formats
 
 The **number-plotter** is quite tolerant on its input.

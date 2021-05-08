@@ -177,8 +177,12 @@ export class ScatterChart extends BarEtcChart {
 		const datasets = [];
 		let k = 0;
 		for (const series of xySerieses) {
+			// Get line number for series name
+			const lineNr = this.serieses[k][0].range.start.line + 1;
+			const dataSeriesName = 'Line ' + lineNr;
+			// Add data set
 			datasets.push({
-				label: '',
+				label: dataSeriesName,
 				backgroundColor: this.getCurrentBkgColor(k),
 				borderColor: this.getCurrentBorderColor(k),
 				data: series,

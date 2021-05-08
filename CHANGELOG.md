@@ -1,6 +1,8 @@
 # Changelog
 
-# 1.0.2
+# 1.1.0
+- Select and navigate to single points.
+- Data series now get the line number as name.
 - Removed commands from palette.
 - vscode 'categories' corrected.
 

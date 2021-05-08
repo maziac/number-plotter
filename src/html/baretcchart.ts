@@ -1,3 +1,6 @@
+import {DatasetController} from "chart.js";
+import {WebviewViewResolveContext} from "vscode";
+
 declare var document: Document;
 declare var Chart: any;
 declare var vscode: any;
@@ -6,10 +9,24 @@ declare var vscode: any;
 /**
  * The chart data representation, x/y pair.
  */
+/*
 interface Data {
 	x: number,
 	y: number
 };
+*/
+
+
+/**
+ * After the text is converted the numbers are stored here.
+ * The values are either stored as single number plus the range.
+ * The range is the number location in the original text document.
+ * If the user clicks on a certain number vscode will navigate to the position.
+ */
+interface SeriesData {
+	value: number,	// A number or a x/y pair
+	range: any	// The vscode.Range
+}
 
 
 /**
@@ -53,10 +70,17 @@ export class BarEtcChart {
 	protected chartTypeIndex: number;
 
 	// The data serieses after parsing the text data.
-	protected serieses: number[][];
+	protected serieses: SeriesData[][];
+
 
 	// The short text (the start of the parsed text) that is shown on top
 	protected shortText: string;
+
+	// The file path.
+	protected path: string;
+
+	// The original range for the text that is parsed.
+	protected range: any;	// vscode.Range
 
 
 	/**
@@ -67,6 +91,9 @@ export class BarEtcChart {
 	 * @param range (vscode.Range) The original range. Is passed back when clicked.
 	 */
 	constructor(text: string, path: string, range: any) {
+		// Store range and path
+		this.path = path;
+		this.range = range;
 		// Use last chart type
 		this.chartTypeIndex = BarEtcChart.chartTypeIndex;
 		// Next color
@@ -122,8 +149,8 @@ export class BarEtcChart {
 			// Send filename and range to extension
 			vscode.postMessage({
 				command: 'select',
-				path: path,
-				range: range
+				path: this.path,
+				range: this.range
 			});
 		});
 
@@ -193,20 +220,25 @@ export class BarEtcChart {
 
 	/**
 	 * Splits the given text in serieses of numbers.
-	 * Each new line in hte text will become an own series.
+	 * Each new line in the text will become an own series.
+	 * Together with teh value it's location inside the text document is stored.
+	 * This way it is possibleto click on a point and navigate to that point
+	 * in the document.
 	 * @param text The multiline text with numbers.
 	 * @returns {serieses: An array with serieses, shortText: A description for the serieses}
 	 */
 	protected convertToSerieses(text: string) {
+		// For the range
+		let startLine = this.range.start.line;
 		// Split lines of text
 		const lines = text.replace(/\r/g, '').split('\n');
 		// Convert text into number series
-		const serieses: number[][] = [];
+		const serieses: SeriesData[][] = [];
 		// To store a small text to show to the user
 		let shortText = '';
 		// For each line get the number series
 		for (const line of lines) {
-			const yArray: number[] = [];
+			const yArray: SeriesData[] = [];
 			const trimmedLine = line.trim();
 			if (trimmedLine.length == 0)
 				continue;
@@ -218,9 +250,11 @@ export class BarEtcChart {
 				// e.g. brackets.
 				text = text.replace(/^[^\w\d\.\-]*/, '');
 				if (text.length > 0) {
-					const y = parseFloat(text);
-					if (!isNaN(y))
-						yArray.push(y);
+					const value = parseFloat(text);
+					if (!isNaN(value)) {
+			//			const range = new vscode.Range(startLine, startCharacter: number, endLine: number, endCharacter: startLine);
+						yArray.push({value, range: undefined});
+					}
 				}
 			}
 			// If at least one element than add it to the serieses.
@@ -248,7 +282,7 @@ export class BarEtcChart {
 	/**
 	 * Returns the max length of all serieses.
 	 */
-	protected getMaxCount(serieses: number[][]): number {
+	protected getMaxCount(serieses: SeriesData[][]): number {
 		// Get the max. number of elements
 		let maxCount = 0;
 		for (const series of serieses) {
@@ -286,11 +320,17 @@ export class BarEtcChart {
 		const datasets = [];
 		let k = 0;
 		for (const series of this.serieses) {
+			// Convert format
+			let x = 0;
+			const data = series.map(data => {
+				return {x: x++, y: data.value}
+			});
+			// Add data set
 			datasets.push({
 				label: '',
 				backgroundColor: this.getCurrentBkgColor(k),
 				borderColor: this.getCurrentBorderColor(k),
-				data: series,
+				data: data,
 				showLine: true
 			});
 			k++;
@@ -307,6 +347,13 @@ export class BarEtcChart {
 			type: this.getCurrentChartType(),
 			data,
 			options: {
+				'onClick': (evt: any, item: any) => {
+					if (!item)
+						return;
+					if (!item.length)
+						return;
+					this.pointClicked(item[0]);
+				},
 				plugins: {
 					legend: {
 						display: (this.serieses.length > 1)
@@ -397,4 +444,23 @@ export class BarEtcChart {
 			return '';
 		return text.charAt(0).toUpperCase() + text.slice(1)
 	}
+
+
+	/**
+	 * Called if a point was clicked.
+	 * @param dataPoint Contains the point info, e.g. datasetIndex and index.
+	 */
+	protected pointClicked(dataPoint: any) {
+		console.log("datapoint:", dataPoint);
+		// Get point with range
+		const point = this.serieses[dataPoint.datasetIndex][dataPoint.index];
+		const range = point.range;
+		// Send message to extension to select the range
+		vscode.postMessage({
+			command: 'select',
+			path: this.path,
+			range: range
+		});
+	}
 }
+

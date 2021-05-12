@@ -134,3 +134,12 @@ This extension makes heavy use of the "[Chart.js](https://www.chartjs.org)" libr
 Many thanks to the authors.
 
 
+
+1
+3
+4
+6
+8
+9
+4
+3

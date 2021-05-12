@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.1.1
+- Fixed: when switching from line to bar chart the x scale was not adjusted.
+
 # 1.1.0
 - Select and navigate to single points.
 - Data series now get the line number as name.

@@ -403,6 +403,7 @@ export class BarEtcChart {
 			this.nextChartType();
 			// Set new type
 			chart.config.type = this.getCurrentChartType();
+			chart.config.options.scales = undefined;
 			chart.update();
 			// Button text
 			typeButton.textContent = this.capitalize(chart.config.type);

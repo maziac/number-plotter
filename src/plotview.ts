@@ -129,10 +129,19 @@ If you like the extension please consider a donation and click one of the button
 		switch (message.command) {
 			case 'select':
 				// A text (range) in a file should be selected.
+				// Try to find if the file is already open in an editor. (openTextDocument may result in opening the same file twice.)
+				let doc: vscode.TextDocument;
+				const foundDocs: vscode.TextDocument[] = vscode.workspace.textDocuments.filter(doc => doc.uri.fsPath == message.path);
+				if (foundDocs.length > 0) {
+					// Doc found
+					doc = foundDocs[0];
+				}
+				else {
+					// Doc not found, open it
+					const uri = vscode.Uri.file(message.path);
+					doc = await vscode.workspace.openTextDocument(uri);
+				}
 				// Get editor
-				//vscode.workspace.textDocuments.filter(doc => doc.isDirty)
-				const uri = vscode.Uri.file(message.path);
-				const doc: vscode.TextDocument = await vscode.workspace.openTextDocument(uri);
 				const editor: vscode.TextEditor = await vscode.window.showTextDocument(doc);
 				// Select range
 				const ranges: vscode.Range[] = message.ranges;

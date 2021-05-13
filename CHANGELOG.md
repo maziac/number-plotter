@@ -2,6 +2,7 @@
 
 # 1.1.2
 - Navigation: file only opened if not opened already.
+- Fixed link when clicking on the file name.
 
 # 1.1.1
 - Fixed: when switching from line to bar chart the x scale was not adjusted.

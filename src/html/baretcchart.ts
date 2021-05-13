@@ -142,7 +142,7 @@ export class BarEtcChart {
 			shortTextNode.innerHTML = '&nbsp;&nbsp;' + this.shortText;
 			textNode.append(shortTextNode);
 		}
-		refNode.href = path;
+		refNode.href = '#';
 		refNode.innerText = fileText;	// Required to change the pointer on hovering
 		textNode.prepend(refNode);
 		node.append(textNode);

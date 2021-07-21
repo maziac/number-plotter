@@ -80,7 +80,7 @@ export class BarEtcChart {
 	protected path: string;
 
 	// The original range for the text that is parsed.
-	protected range: any;	// vscode.Range
+	protected ranges: any[];	// vscode.Range
 
 	// The created chart object.
 	protected chart: any;	// Chart
@@ -89,14 +89,14 @@ export class BarEtcChart {
 	/**
 	 * Creates a canvas etc. and shows the chart.
 	 * There is also a button to cycle through the different chart types.
-	 * @param text The text that is converted to a number series.
+	 * @param texts The text that is converted to a number series.
 	 * @param path The file path.
-	 * @param range (vscode.Range) The original range. Is passed back when clicked.
+	 * @param ranges (vscode.Range) The original range. Is passed back when clicked.
 	 */
-	constructor(text: string, path: string, range: any) {
+	constructor(texts: string[], path: string, ranges: any[]) {
 		// Store range and path
 		this.path = path;
-		this.range = range;
+		this.ranges = ranges;
 		// Use last chart type
 		this.chartTypeIndex = BarEtcChart.chartTypeIndex;
 		// Next color
@@ -104,7 +104,7 @@ export class BarEtcChart {
 		this.nextColor();
 
 		// Convert text into number series
-		this.convertToSerieses(text);
+		this.convertToSerieses(texts);
 
 		// Get the config for the chart
 		const config = this.createChartConfig();
@@ -128,13 +128,16 @@ export class BarEtcChart {
 		const refNode = document.createElement('a') as HTMLAnchorElement;
 		const parts = path.split(/[\/\\]/);
 		const basename = parts.pop();
-		const lineStart = range.start.line+1;
-		let lineEnd = range.end.line + 1;
-		if (range.end.character == 0)
-			lineEnd--;
-		let fileText = basename + ';' + lineStart.toString();
-		if (lineStart < lineEnd)
-			fileText += '-' + lineEnd.toString();
+		let fileText = basename;
+		for (const range of ranges) {
+			const lineStart = range.start.line + 1;
+			let lineEnd = range.end.line + 1;
+			if (range.end.character == 0)
+				lineEnd--;
+			fileText += ';' + lineStart.toString();
+			if (lineStart < lineEnd)
+				fileText += '-' + lineEnd.toString();
+		}
 		if (this.shortText) {
 			fileText += ':';
 			// Add a text node
@@ -153,7 +156,7 @@ export class BarEtcChart {
 			vscode.postMessage({
 				command: 'select',
 				path: this.path,
-				ranges: [this.range]
+				ranges: this.ranges
 			});
 		});
 
@@ -227,78 +230,81 @@ export class BarEtcChart {
 	 * Together with teh value it's location inside the text document is stored.
 	 * This way it is possible to click on a point and navigate to that point
 	 * in the document.
-	 * @param text The multiline text with numbers.
+	 * @param texts The multiline text with numbers.
 	 * @returns {serieses: An array with serieses, shortText: A description for the serieses}
 	 */
-	protected convertToSerieses(text: string) {
-		// For the range
-		let lineNr = this.range.start.line;
-		let clmn = this.range.start.character;
-		// Split lines of text
-		const lines = text.replace(/\r/g, '').split('\n');
+	protected convertToSerieses(texts: string[]) {
 		// Convert text into number series
 		const serieses: SeriesData[][] = [];
 		// To store a small text to show to the user
 		let shortText = '';
-		// For each line get the number series
-		for (const line of lines) {
-			const yArray: SeriesData[] = [];
-			const rLine = line.trimRight();
-			const textArray = rLine
-				.split(/[,;\s]/);
-			for (const text of textArray) {
-				// Check if text available
-				if (text.length > 0) {
-					// Strip any leading non digit or letter characters from the start,
-					// e.g. brackets.
-					const strippedText = text.replace(/^[^\w\d\.\-]*/, '');
-					const len = strippedText.length;
-					if (len > 0) {
-						const value = parseFloat(strippedText);
-						if (!isNaN(value)) {
-							const range = {
-								start: {
-									line: lineNr,
-									character: clmn
-								},
-								end: {
-									line: lineNr,
-									character: clmn+len
-								}
-							};
-							yArray.push({value, range});
+		// Loop over all (multiple) selections
+		for (let i = 0; i < texts.length; i++) {
+			const text = texts[i];
+			const rangeElem = this.ranges[i];
+			// For the range
+			let lineNr = rangeElem.start.line;
+			let clmn = rangeElem.start.character;
+			// Split lines of text
+			const lines = text.replace(/\r/g, '').split('\n');
+			// For each line get the number series
+			for (const line of lines) {
+				const yArray: SeriesData[] = [];
+				const rLine = line.trimRight();
+				const textArray = rLine
+					.split(/[,;\s]/);
+				for (const text of textArray) {
+					// Check if text available
+					if (text.length > 0) {
+						// Strip any leading non digit or letter characters from the start,
+						// e.g. brackets.
+						const strippedText = text.replace(/^[^\w\d\.\-]*/, '');
+						const len = strippedText.length;
+						if (len > 0) {
+							const value = parseFloat(strippedText);
+							if (!isNaN(value)) {
+								const range = {
+									start: {
+										line: lineNr,
+										character: clmn
+									},
+									end: {
+										line: lineNr,
+										character: clmn + len
+									}
+								};
+								yArray.push({value, range});
+							}
 						}
+						// Step over
+						clmn += text.length;
 					}
-					// Step over
-					clmn += text.length;
+					// Next
+					clmn++;	// For the split character
 				}
-				// Next
-				clmn++;	// For the split character
+				// If at least one element than add it to the serieses.
+				if (yArray.length > 0) {
+					// Store series
+					serieses.push(yArray);
+					// Store text from the first used line
+					if (!shortText)
+						shortText = line.trim();
+				}
+				// Next line starts at 0
+				clmn = 0;
+				lineNr++;
 			}
-			// If at least one element than add it to the serieses.
-			if (yArray.length > 0) {
-				// Store series
-				serieses.push(yArray);
-				// Store text from the first used line
-				if (!shortText)
-					shortText = line.trim();
+
+			// Shorten smallText
+			const maxShortTextLength = 20;
+			if (shortText.length > maxShortTextLength || serieses.length > 1) {
+				shortText = shortText.substr(0, maxShortTextLength) + ' ...';
 			}
-			// Next line starts at 0
-			clmn = 0;
-			lineNr++;
 		}
-
-		// Shorten smallText
-		const maxShortTextLength = 20;
-		if (shortText.length > maxShortTextLength || serieses.length > 1) {
-			shortText = shortText.substr(0, maxShortTextLength) + ' ...';
-		}
-
 		// Store
 		this.serieses = serieses;
 		this.shortText = shortText;
 	}
-
 
 	/**
 	 * Returns the max length of all serieses.

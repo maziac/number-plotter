@@ -29,18 +29,27 @@ function showChart(chartType: string) {
         return;
 
     // Check if selection exists
-    const selection = editor.selection;
-    if (selection.isEmpty)
+    const selections = editor.selections;
+    if (selections.length == 0)
         return;
 
-    // Get only a single line
-    const range = selection.with();
+    // Get text and ranges for all selections
+    const ranges: vscode.Range[] = [];
+    const texts: string[] = [];
     const document = editor.document;
-    const text = document.getText(range);
+    for (const selection of selections) {
+        if (!selection.isEmpty) {
+            const range = selection.with();
+            const text = document.getText(range);
+            ranges.push(range);
+            texts.push(text);
+        }
+    }
+
 
     // Get file name
     const filename = document.uri.fsPath;
 
     // Show plot
-    PlotView.showChart(chartType, text, filename, range);
+    PlotView.showChart(chartType, texts, filename, ranges);
 }

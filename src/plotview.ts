@@ -16,11 +16,11 @@ export class PlotView {
 	 * Static function to create a new line/bar chart.
 	 * The plot view itself is created only once.
 	 * @param chartType 'lineChart' or 'xyChart'.
-	 * @param text The text that is converted to a number series.
+	 * @param texts The text that is converted to a number series.
 	 * @param path The file path.
-	 * @param range The original range. Is passed back when clicked.
+	 * @param ranges The original range. Is passed back when clicked.
 	 */
-	public static showChart(chartType: string, text: string, path: string, range: vscode.Range) {
+	public static showChart(chartType: string, texts: string[], path: string, ranges: vscode.Range[]) {
 		// Create singleton if necessary
 		if (!this.singleton)
 			this.singleton = new PlotView();
@@ -28,9 +28,9 @@ export class PlotView {
 		// Add plot
 		const message = {
 			command: chartType,
-			text: text,
+			texts: texts,
 			path: path,
-			range: range
+			ranges: ranges
 		};
 		this.singleton.sendMessageToWebView(message);
 	}

@@ -16,11 +16,11 @@ window.addEventListener('message', event => {
 	switch (message.command) {
 		case 'lineChart':
 			{
-				new BarEtcChart(message.text, message.path, message.range);
+				new BarEtcChart(message.texts, message.path, message.ranges);
 			} break;
 		case 'xyChart':
 			{
-				new ScatterChart(message.text, message.path, message.range);
+				new ScatterChart(message.texts, message.path, message.ranges);
 			} break;
 	}
 });

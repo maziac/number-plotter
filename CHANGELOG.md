@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.2.0
+- Support for multiple selections: Use the vscode multiple selection/multiple cursor feature. Use Alt-click to add another selection. All of the selections are displayed in the number plot.
+
 # 1.1.2
 - Navigation: file only opened if not opened already.
 - Fixed link when clicking on the file name.

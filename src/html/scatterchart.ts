@@ -18,7 +18,7 @@ enum ParseValues {
 interface XY {
 	x: number,
 	y: number
-};
+}
 
 
 /**
@@ -197,6 +197,7 @@ export class ScatterChart extends BarEtcChart {
 		};
 
 		// And config
+		const self = this;
 		const config = {
 			type: 'scatter',
 			data,
@@ -207,6 +208,24 @@ export class ScatterChart extends BarEtcChart {
 				plugins: {
 					legend: {
 						display: (xySerieses.length > 1)
+					},
+					zoom: {
+						pan: {
+							enabled: true,
+							modifierKey: 'alt',
+							onPanComplete: function () {
+								self.panZoomResetButton.hidden = false;
+							}
+						},
+						zoom: {
+							drag: {
+								enabled: true,
+							},
+							mode: 'xy',
+							onZoomComplete: function () {
+								self.panZoomResetButton.hidden = false;
+							}
+						}
 					}
 				},
 				animation: true,
@@ -227,7 +246,7 @@ export class ScatterChart extends BarEtcChart {
 	 * @param chart The just created chart is passed here.
 	 */
 	protected createFirstButton(chart: any): HTMLButtonElement {
-		const button = document.createElement('button') as HTMLButtonElement;
+		const button = document.createElement('button'); // as HTMLButtonElement;
 		button.textContent = ScatterChart.ParsingTitle[this.parseValues];
 		button.addEventListener("click", () => {
 			// Cycle parsing

@@ -1,6 +1,7 @@
 # Changelog
 
 # 1.3.0
+- Support for zoom and pan in the charts.
 - Activation event changed to 'onCommand'.
 
 # 1.2.0

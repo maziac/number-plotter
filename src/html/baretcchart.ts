@@ -1,5 +1,5 @@
-import {DatasetController} from "chart.js";
-import {WebviewViewResolveContext} from "vscode";
+//import {DatasetController} from "chart.js";
+//import {WebviewViewResolveContext} from "vscode";
 
 declare var document: Document;
 declare var Chart: any;
@@ -85,6 +85,9 @@ export class BarEtcChart {
 	// The created chart object.
 	protected chart: any;	// Chart
 
+	// To unhide/hide the pan/zoom reset button.
+	protected panZoomResetButton: HTMLButtonElement;
+
 
 	/**
 	 * Creates a canvas etc. and shows the chart.
@@ -161,11 +164,11 @@ export class BarEtcChart {
 		});
 
 		// Add a node for the buttons
-		const buttonNode = document.createElement('div') as HTMLDivElement;
+		const buttonNode = document.createElement('div'); // as HTMLDivElement;
 		node.append(buttonNode);
 
 		// Add a canvas
-		const canvas = document.createElement('canvas') as HTMLCanvasElement;
+		const canvas = document.createElement('canvas'); // as HTMLCanvasElement;
 		node.append(canvas);
 
 		// Add the chart to it
@@ -176,7 +179,7 @@ export class BarEtcChart {
 		buttonNode.append(typeButton);
 
 		// Add a button to change the color
-		const colorButton = document.createElement('button') as HTMLButtonElement;
+		const colorButton = document.createElement('button'); // as HTMLButtonElement;
 		colorButton.textContent = 'Color';
 		buttonNode.append(colorButton);
 		colorButton.addEventListener("click", () => {
@@ -193,7 +196,7 @@ export class BarEtcChart {
 		});
 
 		// Add a button to remove the chart
-		const removeButton = document.createElement('button') as HTMLButtonElement;
+		const removeButton = document.createElement('button'); // as HTMLButtonElement;
 		removeButton.textContent = 'Clear'; // "Clear" is shorter than "Remove"
 		removeButton.style.float = "right";
 		buttonNode.append(removeButton);
@@ -203,7 +206,7 @@ export class BarEtcChart {
 		});
 
 		// Add a button to remove all chart up to the bottom
-		const removeToBottomButton = document.createElement('button') as HTMLButtonElement;
+		const removeToBottomButton = document.createElement('button'); // as HTMLButtonElement;
 		removeToBottomButton.textContent = "Clear down";
 		removeToBottomButton.style.float = "right";
 		buttonNode.append(removeToBottomButton);
@@ -221,6 +224,20 @@ export class BarEtcChart {
 			for(const child of removeNodes)
 				child.remove();
 		});
+
+		// Add a button to clear zoom and panning the chart
+		const clearZoomPanButton = document.createElement('button'); // as HTMLButtonElement;
+		clearZoomPanButton.textContent = 'Reset Pan/Zoom';
+		clearZoomPanButton.style.float = "right";
+		clearZoomPanButton.hidden = true;
+		buttonNode.append(clearZoomPanButton);
+		this.panZoomResetButton = clearZoomPanButton;
+		clearZoomPanButton.addEventListener("click", () => {
+			// Reset zoom/panning
+			this.chart.resetZoom();
+			this.panZoomResetButton.hidden = true;
+		});
+
 	}
 
 
@@ -373,6 +390,7 @@ export class BarEtcChart {
 		};
 
 		// And config
+		const self = this;
 		const config = {
 			type: this.getCurrentChartType(),
 			data,
@@ -383,6 +401,24 @@ export class BarEtcChart {
 				plugins: {
 					legend: {
 						display: (this.serieses.length > 1)
+					},
+					zoom: {
+						pan: {
+							enabled: true,
+							modifierKey: 'alt',
+							onPanComplete: function () {
+								self.panZoomResetButton.hidden = false;
+							}
+						},
+						zoom: {
+							drag: {
+								enabled: true,
+							},
+							mode: 'xy',
+							onZoomComplete: function () {
+								self.panZoomResetButton.hidden = false;
+							}
+						}
 					}
 				},
 				animation: true,
@@ -402,7 +438,7 @@ export class BarEtcChart {
 	 * @param chart The just created chart is passed here.
 	 */
 	protected createFirstButton(chart: any): HTMLButtonElement {
-		const typeButton = document.createElement('button') as HTMLButtonElement;
+		const typeButton = document.createElement('button'); // as HTMLButtonElement;
 		typeButton.textContent = this.capitalize(chart.config.type);
 		typeButton.addEventListener("click", () => {
 			// Next chart type

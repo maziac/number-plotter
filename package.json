@@ -2,7 +2,7 @@
     "name": "number-plotter",
     "displayName": "Number Plotter",
     "description": "Creates plots/charts from a series of selected numbers.",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "publisher": "maziac",
     "license": "MIT",
     "keywords": [
@@ -26,7 +26,8 @@
     ],
     "icon": "assets/icon.png",
     "activationEvents": [
-        "workspaceContains:*"
+        "onCommand:number-plotter.linechart",
+        "onCommand:number-plotter.xychart"
     ],
     "main": "./out/extension",
     "scripts": {
@@ -36,12 +37,6 @@
         "test": "mocha -u tdd ./out/tests/",
         "package": "vsce package",
         "publish": "vsce publish"
-    },
-    "devDependencies": {
-        "@types/mocha": "^8.2.0",
-        "@types/node": "^13.13.39",
-        "@types/vscode": "^1.52.0",
-        "typescript": "^4.1.3"
     },
     "contributes": {
         "commands": [
@@ -91,7 +86,15 @@
             }
         }
     },
+    "devDependencies": {
+        "@types/mocha": "^8.2.0",
+        "@types/node": "^13.13.39",
+        "@types/vscode": "^1.52.0",
+        "typescript": "^4.1.3"
+    },
     "dependencies": {
-        "chart.js": "^3.2.1"
+        "chart.js": "^3.2.1",
+        "chartjs-plugin-zoom": "^1.2.0",
+        "hammerjs": "^2.0.8"
     }
 }

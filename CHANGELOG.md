@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.3.0
+- Activation event changed to 'onCommand'.
+
 # 1.2.0
 - Support for multiple selections: Use the vscode multiple selection/multiple cursor feature. Use Alt-click to add another selection. All of the selections are displayed in the number plot.
 

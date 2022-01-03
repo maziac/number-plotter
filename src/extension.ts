@@ -18,10 +18,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 
-export function deactivate() {
-}
-
-
 function showChart(chartType: string) {
     // Get active editor
     const editor: vscode.TextEditor = vscode.window.activeTextEditor;

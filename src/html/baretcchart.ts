@@ -118,17 +118,17 @@ export class BarEtcChart {
 		// Add a horizontal ruler
 		const firstChild = divRoot.firstElementChild;
 		if (firstChild) {
-			const hr = document.createElement('hr') as HTMLHRElement;
+			const hr = document.createElement('hr'); // as HTMLHRElement;
 			firstChild.prepend(hr);
 		}
 
 		// Add a new div at the top
-		const node = document.createElement('div') as HTMLDivElement;
+		const node = document.createElement('div'); // as HTMLDivElement;
 		divRoot.prepend(node);
 
 		// Add the file name.
-		const textNode = document.createElement('div') as HTMLElement;
-		const refNode = document.createElement('a') as HTMLAnchorElement;
+		const textNode = document.createElement('div'); // as HTMLElement;
+		const refNode = document.createElement('a'); // as HTMLAnchorElement;
 		const parts = path.split(/[\/\\]/);
 		const basename = parts.pop();
 		let fileText = basename;
@@ -275,7 +275,7 @@ export class BarEtcChart {
 					if (text.length > 0) {
 						// Strip any leading non digit or letter characters from the start,
 						// e.g. brackets.
-						const strippedText = text.replace(/^[^\w\d\.\-]*/, '');
+						const strippedText = text.replace(/^[^\w\.\-]*/, '');
 						const len = strippedText.length;
 						if (len > 0) {
 							const value = parseFloat(strippedText);

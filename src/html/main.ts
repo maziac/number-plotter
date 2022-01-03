@@ -10,17 +10,17 @@ declare var ScatterChart: any;
 
 
 //---- Handle messages from vscode extension --------
-window.addEventListener('message', event => {
+window.addEventListener('message', event => {	// NOSONAR
 	const message = event.data;
 
 	switch (message.command) {
 		case 'lineChart':
 			{
-				new BarEtcChart(message.texts, message.path, message.ranges);
+				new BarEtcChart(message.texts, message.path, message.ranges); // NOSONAR
 			} break;
 		case 'xyChart':
 			{
-				new ScatterChart(message.texts, message.path, message.ranges);
+				new ScatterChart(message.texts, message.path, message.ranges); // NOSONAR
 			} break;
 	}
 });

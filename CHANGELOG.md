@@ -2,6 +2,7 @@
 
 # 1.3.1
 - Reverted accidentally added packages (marketplace only).
+
 # 1.3.0
 - Support for zoom and pan in the charts.
 - Activation event changed to 'onCommand'.

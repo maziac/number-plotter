@@ -130,6 +130,5 @@ Here are examples of number formats that are recognized:
 
 # Acknowledgements
 
-This extension makes heavy use of the "[Chart.js](https://www.chartjs.org)" library.
+This extension makes heavy use of the "[chart.js](https://www.chartjs.org)", the "[chartjs-plugin-zoom](https://github.com/chartjs/chartjs-plugin-zoom)" and the "[hammer.js](https://github.com/hammerjs/hammer.js/tree/master/)" libraries.
 Many thanks to the authors.
-

@@ -268,7 +268,7 @@ export class ScatterChart extends BarEtcChart {
 
 	/**
 	 * Called if a point was clicked.
-	 * A point in the scater chart consist of 2 data: x and y.
+	 * A point in the scatter chart consist of 2 data: x and y.
 	 * Both are being selected.
 	 * @param dataPoint Contains the point info, e.g. datasetIndex and index.
 	 */

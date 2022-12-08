@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.4.0
+- Fixed incompatibility with vscode 1.74.
+
 # 1.3.1
 - Reverted accidentally added packages (marketplace only).
 

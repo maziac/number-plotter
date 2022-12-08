@@ -1,5 +1,4 @@
-.vscode/**
-.vscode-test/**
+.*/
 out/tests/**
 out/**/*.map
 src/**
@@ -7,3 +6,5 @@ src/**
 tsconfig.json
 notes.md
 images/**
+releases/
+**/*.vsix

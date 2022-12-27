@@ -1,6 +1,7 @@
 .*/
 out
 node_modules
-/*.vsix
 notes.md
-
+**/*.vsix
+**/*.zip
+**/coverage/

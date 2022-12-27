@@ -8,3 +8,6 @@ notes.md
 images/**
 releases/
 **/*.vsix
+**/*.zip
+**/coverage/
+node_modules/

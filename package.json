@@ -24,7 +24,7 @@
         "Data Science",
         "Visualization"
     ],
-    "icon": "assets/icon.png",
+    "icon": "assets/local/icon.png",
     "activationEvents": [
         "onCommand:number-plotter.linechart",
         "onCommand:number-plotter.xychart"

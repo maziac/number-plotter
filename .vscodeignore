@@ -1,11 +1,11 @@
 .*/
-out/tests/**
+out/tests/
 out/**/*.map
-src/**
+src/
 .gitignore
 tsconfig.json
 notes.md
-images/**
+assets/remote/
 releases/
 **/*.vsix
 **/*.zip

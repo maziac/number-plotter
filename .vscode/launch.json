@@ -7,13 +7,17 @@
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
 			"args": [
+				//"--disable-extensions",
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
-			"stopOnEntry": false,
 			"sourceMaps": true,
 			"outFiles": [
-				"${workspaceFolder}/out/src/**/*.js"
+				"${workspaceFolder}/out/extension.js"
+			],
+			"preLaunchTask": "watch",
+			"skipFiles": [
+				"**/extensionHostProcess.js"
 			]
-		},
+		}
 	]
 }

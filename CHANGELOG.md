@@ -1,7 +1,7 @@
 # Changelog
 
 # 1.5.0
-- Build with esbuild. Size reduced to 20%.
+- Built with esbuild. Size reduced to 20%.
 
 # 1.4.0
 - Fixed incompatibility with vscode 1.74.

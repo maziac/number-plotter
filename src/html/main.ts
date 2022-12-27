@@ -1,7 +1,6 @@
-declare var acquireVsCodeApi: any;
-declare var window: Window & typeof globalThis;
-declare var BarEtcChart: any;
-declare var ScatterChart: any;
+import {BarEtcChart} from './baretcchart';
+import {ScatterChart} from './scatterchart';
+
 
 
 /**

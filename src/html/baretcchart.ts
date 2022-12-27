@@ -1,20 +1,6 @@
-//import {DatasetController} from "chart.js";
-//import {WebviewViewResolveContext} from "vscode";
+import {vscode} from './vscode-import';
+import Chart from 'chart.js/auto';
 
-declare var document: Document;
-declare var Chart: any;
-declare var vscode: any;
-
-
-/**
- * The chart data representation, x/y pair.
- */
-/*
-interface Data {
-	x: number,
-	y: number
-};
-*/
 
 
 /**
@@ -92,7 +78,7 @@ export class BarEtcChart {
 	/**
 	 * Creates a canvas etc. and shows the chart.
 	 * There is also a button to cycle through the different chart types.
-	 * @param texts The text that is converted to a number series.
+	 * @param texts The texts that are converted to a number series.
 	 * @param path The file path.
 	 * @param ranges (vscode.Range) The original range. Is passed back when clicked.
 	 */
@@ -267,7 +253,7 @@ export class BarEtcChart {
 			// For each line get the number series
 			for (const line of lines) {
 				const yArray: SeriesData[] = [];
-				const rLine = line.trimRight();
+				const rLine = line.trimEnd();
 				const textArray = rLine
 					.split(/[,;\s]/);
 				for (const text of textArray) {
@@ -315,7 +301,7 @@ export class BarEtcChart {
 			// Shorten smallText
 			const maxShortTextLength = 20;
 			if (shortText.length > maxShortTextLength || serieses.length > 1) {
-				shortText = shortText.substr(0, maxShortTextLength) + ' ...';
+				shortText = shortText.substring(0, maxShortTextLength) + ' ...';
 			}
 		}
 		// Store

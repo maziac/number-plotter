@@ -1,5 +1,5 @@
-declare var document: Document;
-declare var vscode: any;
+import {vscode} from './vscode-import';
+import {BarEtcChart} from './baretcchart';
 
 
 /**
@@ -43,11 +43,11 @@ export class ScatterChart extends BarEtcChart {
 	/**
 	 * Creates a canvas etc.and shows the chart.
 	 * There is also a button to cycle through the different chart types.
-	 * @param text The text that is converted to a number series.
+	 * @param texts The texts that are converted to a number series.
 	 * @param path The file path.
 	 * @param range(vscode.Range) The original range.Is passed back when clicked.
 	 */
-	constructor(text: string, path: string, range: any) {
+	constructor(text: string[], path: string, range: any) {
 		super(text, path, range);
 	}
 

@@ -1,5 +1,8 @@
 # Changelog
 
+# 1.5.1
+- Build to get the image paths right.
+
 # 1.5.0
 - Built with esbuild. Size reduced to 20%.
 

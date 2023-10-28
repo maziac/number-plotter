@@ -2,7 +2,7 @@
     "name": "number-plotter",
     "displayName": "Number Plotter",
     "description": "Creates plots/charts from a series of selected numbers.",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "publisher": "maziac",
     "license": "MIT",
     "keywords": [
@@ -15,7 +15,10 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/maziac/number-plotter.git"
+        "url": "https://github.com/maziac/number-plotter"
+    },
+    "sponsor": {
+        "url": "https://github.com/sponsors/maziac"
     },
     "engines": {
         "vscode": "^1.61.0"
